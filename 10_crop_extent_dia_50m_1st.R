@@ -21,11 +21,11 @@ names(ext_all) <- pois$name
 #plot(r)
 
 ###################################
-cl <- makeCluster(15)
+cl <- makeCluster(3)
 registerDoParallel(cl)
 
-setwd("/media/sd19006/data/users/iotte/R-Server/hyperspectral/clean/2nd/norm_441/re_norm/pca/pca_inverse/pci_vegIndex/pci_vegIndex_hara/")
-filepath_raster <- "/media/sd19006/data/users/iotte/R-Server/hyperspectral/clean/2nd/norm_441/re_norm/pca/pca_inverse/pci_vegIndex/pci_vegIndex_hara/"
+setwd("E:/hyperspec_clean/clean/1st/norm_441/re_norm/pca/pca_inverse/pci_vegIndex/pci_vegIndex_hara")
+filepath_raster <- "E:/hyperspec_clean/clean/1st/norm_441/re_norm/pca/pca_inverse/pci_vegIndex/pci_vegIndex_hara"
 
 fls_hps <- list.files(paste0(filepath_raster), full.names = FALSE,
                       recursive = FALSE, pattern = "*.tif")
@@ -36,39 +36,35 @@ fls_hps_stck <- foreach(i = seq(fls_hps), .packages = "raster") %dopar% {
 }
 
 nms_rst <- foreach(i = seq(fls_hps_stck), .packages = "raster") %dopar% {
-  substr(names(fls_hps_stck[[i]][[1]]), 8, 11)
+  substr(names(fls_hps_stck[[i]][[1]]), 6, 9)
 }
 
-#ext_1st <- ext_all[c(1:5,17:21,23,28,33,46:51,57:66,70:74)]
-#ext_1st_hara <- rep(ext_1st, times = 4)
-ext_2nd <- ext_all[c(7:12, 14:16, 22:31, 34, 36:45, 52:55)]
-ext_2nd_hara <- rep(ext_2nd, times = 4)
+ext_1st <- ext_all[c(1:5,17:21,23,28,33,46:51,57:66,70:74)]
+ext_1st_hara <- rep(ext_1st, times = 4)
+
 
 fls_rst_crp <- foreach(i = seq(fls_hps_stck), .packages = "raster") %dopar% {
-  crop(fls_hps_stck[[i]], ext_2nd_hara[[i]])
+  crop(fls_hps_stck[[i]], ext_1st_hara[[i]])
 }
 
-#plot(fls_rst_crp[[27]][[1]])
+#plot(fls_rst_crp[[34]][[10]])
 
 # write raster
-#oth_unlist <- unlist(fls_rst_crp)
+oth_unlist <- unlist(fls_rst_crp)
 
-#ofl <- paste(substr(fls_hps, 1, 24), "dia_50m", sep = "_") #24
-ofl_1 <- paste(substr(fls_hps[1:136], 8, 36), substr(fls_hps[1:136], 1, 6), "dia_50m", sep = "_")
-#ofl_2 <- paste(substr(fls_hps[103:136], 1, 34), "dia_50m", sep = "_")
+#ofl <- paste(substr(fls_hps, 1, 24), "dia_50m", sep = "_")
+ofl_1 <- paste(substr(fls_hps[1:102], 1, 29), "dia_50m", sep = "_")
+ofl_2 <- paste(substr(fls_hps[103:136], 1, 27), "dia_50m", sep = "_")
 
-#for (i in 1:length(fls_rst_crp)) {
-#  writeRaster(fls_rst_crp[[i]], file = ofl[[i]], format='GTiff')
-#}
+fls_rst_crp_1 <- fls_rst_crp[1:102]
 
-fls_rst_crp_1 <- fls_rst_crp[1:136]
 for (i in 1:length(fls_rst_crp_1)) {
   writeRaster(fls_rst_crp_1[[i]], file = ofl_1[[i]], format='GTiff')
 }
 
-#fls_rst_crp_2 <- fls_rst_crp[103:136]
-#for (i in 1:length(fls_rst_crp_2)) {
-#  writeRaster(fls_rst_crp_2[[i]], file = ofl_2[[i]], format='GTiff')
-#}
+fls_rst_crp_2 <- fls_rst_crp[103:136]
 
-stopCluster()
+for (i in 1:length(fls_rst_crp_2)) {
+  writeRaster(fls_rst_crp_2[[i]], file = ofl_2[[i]], format='GTiff')
+}
+
