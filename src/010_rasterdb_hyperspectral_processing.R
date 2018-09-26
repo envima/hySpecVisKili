@@ -31,16 +31,16 @@ for(db in dbs){
 }
 
 
-# Get data
-rg = "kili_roi_plot_poles_b"
-rois = remotesensing$roi_group(rg)
-for(n in rois$name){
-  roi <- remotesensing$roi(group_name=rg, roi_name=n)
-  ext <- extent(min(roi$polygon[[1]][,1]), max(roi$polygon[[1]][,1]),
-                min(roi$polygon[[1]][,2]), max(roi$polygon[[1]][,2]))
-  r <- rasterdb$raster(ext)
-  saveRDS(r, file =  paste0(path_org, n, ".rds"))
-}
+# # Get data
+# rg = "kili_roi_plot_poles_b"
+# rois = remotesensing$roi_group(rg)
+# for(n in rois$name){
+#   roi <- remotesensing$roi(group_name=rg, roi_name=n)
+#   ext <- extent(min(roi$polygon[[1]][,1]), max(roi$polygon[[1]][,1]),
+#                 min(roi$polygon[[1]][,2]), max(roi$polygon[[1]][,2]))
+#   r <- rasterdb$raster(ext)
+#   saveRDS(r, file =  paste0(path_org, n, ".rds"))
+# }
 
 
 # Check data
