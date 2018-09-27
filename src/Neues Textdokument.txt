@@ -1,0 +1,6 @@
+1. PCA
+2. PCA inverse (95%)
+3. VegIndices
+4. Haralick (8, 16, x), 1, 3, 9 15 30 m, welches Band? PCA 1? nur die, die gut sind
+5. Openness, closeness
+5. Mean, SD, Rao Q pro Datenlayer und einmal über alle, Rao Q ggf. auf Fenstern
