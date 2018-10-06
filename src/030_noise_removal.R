@@ -37,9 +37,9 @@ for(f in hd_files){
   
   all_na = grep(ncell(r), summary(r)[6,])
   if(length(all_na) > 0){
-    log_entry = log_entry + 1
-    log[[log_entry]] = list(file = basename(f), all_na = all_na)
     r = r[[-all_na]]
+  } else {
+    all_na = -1
   }
   
   pca = rasterPCA(r)
@@ -48,6 +48,11 @@ for(f in hd_files){
   # Continuous Significant Dimensionality 
   csd = round(sum(sapply(v, function(x){min(x,1)})), 0)
   use = seq(csd)
+
+  log_entry = log_entry + 1
+  log[[log_entry]] = list(file = basename(f), all_na = all_na, csd = csd)
+  
+  
   pcai = t(t(as.matrix(pca$map)[, use] %*% t(pca$model$loadings)[use, ]) + pca$model$center)
   
   tmp = r[[1]]
