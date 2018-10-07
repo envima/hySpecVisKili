@@ -46,7 +46,6 @@ library(rgdal)
 # library(semPlot)
 library(sp)
 library(spacetime)
-library(spectralrao)  # devtools::install_github("mattmar/spectralrao")
 # library(vegan)
 # library(yaml)
 

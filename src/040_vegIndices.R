@@ -29,18 +29,22 @@ vis =  c("CARI",
          "SRPI", "TCARI", "TCARI/OSAVI", "TCARI2", "TCARI2/OSAVI2", 
          "TGI", "TVI", "Vogelmann", "Vogelmann2", "Vogelmann4")
 
-
-foreach(i = seq(length(hd_files)), .packages = c("hsdar", "raster")) %dopar% {
+foreach(i = seq(length(hd_files)), .packages = c("hsdar", "raster")) %do% {
   plotid = substr(basename(hd_files[[i]]), 1, 4)
   m = h_meta[[2]][[h_meta[[1]]$list[grep(plotid, h_meta[[1]]$plotID)]]]
-  r = hsdar::speclib(readRDS(hd_files[[i]]),
+  r = hsdar::speclib(brick(readRDS(hd_files[[i]])),
               wavelength = m$wavelength,
               fwhm = m$fwhm, 
               continuousdata = "auto")
-  v = vegindex(r, index = vis)          
+  v = vegindex(r, index = vis)
   vr = v@spectra@spectra_ra
   names(vr) = vis
   saveRDS(vr, file = paste0(path_hyp_vegidcs, plotid, "_vegidcs.rds"))
-} 
+}
 
 stopCluster(cl)
+
+
+# Visually check data
+visCheck(datapath = path_hyp_vegidcs, polygonfile = paste0(path_plots, "BPolygon.shp"), band = 47)
+summary(unlist(lapply(files, function(f){nlayers(readRDS(files[[1]]))})))
