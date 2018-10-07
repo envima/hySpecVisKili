@@ -55,8 +55,8 @@ hd_size = do.call("rbind", hd_size)
 hd_size_valid = hd_size[hd_size$s > 300000, ]
 hd_size_valid$f = as.character(hd_size_valid$f)
 
-hd_size_valid = hd_size_valid[-grep(paste0(dbs[[1]], "/foc1.rds"), hd_size_valid$f),]
-hd_size_valid = hd_size_valid[-grep(paste0(dbs[[1]], "/foc6.rds"), hd_size_valid$f),]
+hd_size_valid = hd_size_valid[-grep(paste0(dbs[[1]], "_fill/foc1.rds"), hd_size_valid$f),]
+hd_size_valid = hd_size_valid[-grep(paste0(dbs[[1]], "_fill/foc6.rds"), hd_size_valid$f),]
 
 hd_size_valid = hd_size_valid[substr(basename(hd_size_valid$f), 1, 4) %in% bd_plots,]
 
@@ -69,8 +69,8 @@ for(f in hd_size_valid$f){
 # Combine metadata
 meta = list(data.frame(hd_size_valid[, c("c", "plotID")], list = 1))
 meta[[1]]$list[meta[[1]]$c == dbs[[2]]] = 2
-meta[[2]] = list(meta_01 = readRDS(paste0(path_hyp_org, dbs[[1]], "/bands_", dbs[[1]], ".rds")),
-            meta_02 = readRDS(paste0(path_hyp_org, dbs[[2]], "/bands_", dbs[[2]], ".rds")))
+meta[[2]] = list(meta_01 = readRDS(paste0(path_hyp_org, dbs[[1]], "_fill/bands_", dbs[[1]], ".rds")),
+            meta_02 = readRDS(paste0(path_hyp_org, dbs[[2]], "_fill/bands_", dbs[[2]], ".rds")))
 dir.create(path_meta, showWarnings = FALSE)
 saveRDS(meta, file = paste0(path_meta, "hyp_meta.rds"))
 

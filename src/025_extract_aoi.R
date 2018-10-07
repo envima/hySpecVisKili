@@ -19,7 +19,7 @@ for(f in hd_files){
  aoi = pb[grep(pid, pb$PlotID),]
  r = raster::mask(crop(r, aoi), aoi)
  # r = raster::mask(r, calc(r, fun=sum)) # We will do that later in the workflow
- names(r) = paste0(pid, "_", names(r))
+ names(r) = paste0(pid, "_", seq(nlayers(r)))
  saveRDS(r, file = paste0(path_hyp_aio, pid, ".rds"))
 }
 

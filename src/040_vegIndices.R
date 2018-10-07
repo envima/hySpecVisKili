@@ -7,7 +7,7 @@ if(length(showConnections()) == 0){
   doParallel::registerDoParallel(cl)
 }
 
-hd_files = list.files(path_hyp_aio, recursive = FALSE, full.names = TRUE)
+hd_files = list.files(path_hyp_nrm, recursive = FALSE, full.names = TRUE)
 h_meta = readRDS(paste0(path_meta, "hyp_meta.rds"))
 
 dir.create(paste0(path_hyp_vegidcs), showWarnings = FALSE)
@@ -30,10 +30,10 @@ vis =  c("CARI",
          "TGI", "TVI", "Vogelmann", "Vogelmann2", "Vogelmann4")
 
 
-foreach(i = seq(length(hd_files))) %dopar% {
+foreach(i = seq(length(hd_files)), .packages = c("hsdar", "raster")) %dopar% {
   plotid = substr(basename(hd_files[[i]]), 1, 4)
   m = h_meta[[2]][[h_meta[[1]]$list[grep(plotid, h_meta[[1]]$plotID)]]]
-  r = speclib(readRDS(hd_files[[i]]),
+  r = hsdar::speclib(readRDS(hd_files[[i]]),
               wavelength = m$wavelength,
               fwhm = m$fwhm, 
               continuousdata = "auto")
