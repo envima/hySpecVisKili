@@ -16,7 +16,6 @@ foreach(i = seq(length(hd_files))) %dopar% {
   plotid = substr(basename(hd_files[[i]]), 1, 4)
   r = readRDS(hd_files[[i]])
   # ra = aggregate(r, fact=2, fun=mean)
-  Sys.time()
   raomatrix <- spectralrao(as.list(r), 
                            mode="multidimension", 
                            distance_m="euclidean", 
@@ -24,7 +23,7 @@ foreach(i = seq(length(hd_files))) %dopar% {
                            shannon=FALSE, 
                            debugging=TRUE, 
                            simplify=3)
-  raor = setValues(r[[1]], raomatrix[[1]])
+  raor = setValues(r[[1]], raomatrix[[1]])k,
   names(raor) = plotid
   saveRDS(raor, file = paste0(path_hyp_dividcs, 
                             substr(basename(hd_files[[i]]), 1, 4), 
