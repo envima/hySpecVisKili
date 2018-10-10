@@ -19,7 +19,7 @@ vis =  c("CARI",
          "Datt", "Datt2", "Datt4", "Datt5", "Datt6", 
          "DD", "DDn", "DWSI4", 
          "EVI", "GDVI_2", "GDVI_3", "GDVI_4", "GI", "Gitelson", "Gitelson2", 
-         "GMI1", "GMI2", "GreenNDVI", "Maccioni", 
+         "GMI1", "GMI2", "Maccioni", 
          "MCARI", "MCARI/OSAVI", "MCARI2", "MCARI2/OSAVI2", 
          "mND705", "mNDVI", "MPRI", "MSAVI", "mSR", "mSR2", "mSR705", 
          "MTCI", "MTVI", "NDVI", "NDVI2", "NDVI3", "NPCI", 
@@ -38,7 +38,7 @@ foreach(i = seq(length(hd_files)), .packages = c("hsdar", "raster")) %do% {
               continuousdata = "auto")
   v = vegindex(r, index = vis)
   vr = readAll(v@spectra@spectra_ra)
-  names(vr) = vis
+  names(vr) = paste0(plotid, "_", vis)
   saveRDS(vr, file = paste0(path_hyp_vegidcs, plotid, "_vegidcs.rds"))
 }
 
@@ -47,4 +47,13 @@ stopCluster(cl)
 
 # Visually check data
 visCheck(datapath = path_hyp_vegidcs, polygonfile = paste0(path_plots, "BPolygon.shp"), band = 47)
-summary(unlist(lapply(files, function(f){nlayers(readRDS(files[[1]]))})))
+
+files = list.files(path_hyp_vegidcs, full.names = TRUE)
+nacheck = do.call("rbind", lapply(files, function(f){
+  df = readRDS(f)
+  nasum = lapply(seq(nlayers(df)), function(i){
+    sum(is.na(getValues(df[[i]])))
+  })
+  return(data.frame(f = basename(f), nacheck = min(unlist(nasum)) == max(unlist(nasum))))
+}))
+nacheck

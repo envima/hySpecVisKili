@@ -13,7 +13,7 @@ path_hyp_org = paste0(path_data, "/020_hypspec_org/")
 path_hyp_aio = paste0(path_data, "/025_hypspec_aio/")
 path_hyp_nrm = paste0(path_data, "/030_hypspec_nrm/")
 path_hyp_vegidcs = paste0(path_data, "/040_hypspec_vegidcs/")
-path_hyp_raoq = paste0(path_data, "/050_hypspec_raoq/")
+path_hyp_raoq = paste0(path_data, "/060_hypspec_raoq/")
 
 path_plots = paste0(path_data, "/plots/")
 path_rdata = paste0(path_data, "/rdata/")

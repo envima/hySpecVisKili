@@ -1,4 +1,5 @@
-# Compute spectral diversity indicies
+# Compute spectral diversity indicies on original band stack and 
+# scaled vegetation inidces stack
 
 source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 if(length(showConnections()) == 0){
@@ -11,15 +12,23 @@ dir.create(paste0(path_hyp_raoq), showWarnings = FALSE)
 windows = c(3, 10)
 
 
-# Compute Rao's Q on original band and vegetation indices values
+# Compute Rao's Q on original bands
 hd_files = c(list.files(path_hyp_nrm, recursive = FALSE, full.names = TRUE), 
              list.files(path_hyp_vegidcs, recursive = FALSE, full.names = TRUE))
 
 h_meta = readRDS(paste0(path_meta, "hyp_meta.rds"))
 
 foreach(i = seq(length(hd_files))) %dopar% {
+  filename = basename(hd_files[i])
   productid = paste0(substr(filename, 1, nchar(filename)-4), "_raoq")
+  
   r = readRDS(hd_files[[i]])
+  
+  # Scale vegetation indicies
+  if(grepl("vegidcs", filename)){
+    r = scale(r, center = TRUE, scale = TRUE)
+  }
+  
   # ra = aggregate(r, fact=2, fun=mean)
   for(w in windows){
     raomatrix <- spectralrao(as.list(r), 
@@ -36,5 +45,7 @@ foreach(i = seq(length(hd_files))) %dopar% {
   }
 } 
 
+
+#check hel3
 
 stopCluster(cl)
