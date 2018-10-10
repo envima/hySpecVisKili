@@ -37,7 +37,7 @@ foreach(i = seq(length(hd_files)), .packages = c("hsdar", "raster")) %do% {
               fwhm = m$fwhm, 
               continuousdata = "auto")
   v = vegindex(r, index = vis)
-  vr = v@spectra@spectra_ra
+  vr = readAll(v@spectra@spectra_ra)
   names(vr) = vis
   saveRDS(vr, file = paste0(path_hyp_vegidcs, plotid, "_vegidcs.rds"))
 }

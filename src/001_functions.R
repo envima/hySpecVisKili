@@ -1,17 +1,17 @@
 # Visually check data
 visCheck = function(datapath, polygonfile, band = 109){
   ds = list.files(datapath, full.names = TRUE)
-  pb = shapefile(polygonfile)
+  spoly = shapefile(polygonfile)
   
   reproj = TRUE
   for(d in ds){
     r = readRDS(d)
     if(reproj){
-      pb = spTransform(pb, projection(r))
+      spoly = spTransform(spoly, projection(r))
       reproj = FALSE
     }
     plot(r[[band]], main = substr(basename(d), 1, 4))
-    plot(pb[grep(substr(basename(d), 1, 4), pb$PlotID),], add = TRUE)
+    plot(spoly[grep(substr(basename(d), 1, 4), spoly$PlotID),], add = TRUE)
   }
 }
 
@@ -32,8 +32,8 @@ visCheck = function(datapath, polygonfile, band = 109){
 ## where S is the number of pixel classes).
 ## -------------------------------------------------
 ## Find more info and application here: 
-## 1) https://doi.org/10.1016/j.ecolind.2016.07.039 Titel anhand dieser DOI in Citavi-Projekt übernehmen 
-## 2) https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12941 %CITAVIPICKER£10.1111/2041-210X.12941£Titel anhand dieser DOI in Citavi-Projekt übernehmen£%
+## 1) https://doi.org/10.1016/j.ecolind.2016.07.039 Titel anhand dieser DOI in Citavi-Projekt ?bernehmen 
+## 2) https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12941 %CITAVIPICKER?10.1111/2041-210X.12941?Titel anhand dieser DOI in Citavi-Projekt ?bernehmen?%
 #####################################################
 # Function
 spectralrao <- function(input, distance_m="euclidean", p=NULL, window=9, mode="classic", lambda=0, shannon=FALSE, rescale=FALSE, na.tolerance=0.0, simplify=3, nc.cores=1, cluster.type="MPI", debugging=FALSE, ...)
@@ -422,7 +422,7 @@ spectralrao <- function(input, distance_m="euclidean", p=NULL, window=9, mode="c
     }
     
     
-    cores = 3
+    cores = 2
     clp = parallel::makeCluster(cores)
     doParallel::registerDoParallel(clp)
     on.exit(stopCluster(clp))

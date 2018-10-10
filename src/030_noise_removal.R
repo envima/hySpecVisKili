@@ -16,16 +16,14 @@ dir.create(paste0(path_hyp_nrm), showWarnings = FALSE)
 
 # for(f in hd_files){
 #  r = readRDS(f)
-#  
+# 
 #  m = mnf(as(r, "SpatialGridDataFrame"), use = "complete.obs")
+# 
+#  # thv = 1-m$values
+#  # set_mean = which(thv < -0.10)
+#  use = seq(2, length(m$values))
+#  mi = as.matrix(m$x@data[, use]) %*% solve(m$rotation)[use, ]
 #  
-#  thv = 1-m$values
-#  set_mean = which(thv < -0.10)
-#  
-#  for(i in use){
-#    m$x@data[,i] = mean(m$x@data[,i], na.rm = TRUE)
-#  }
-#  mi = as.matrix(m$x@data) %*% solve(m$rotation)
 #  tmp = r[[1]]
 #  mir = stack(lapply(seq(ncol(mi)), function(i){
 #    setValues(tmp, mi[, i])
@@ -33,6 +31,7 @@ dir.create(paste0(path_hyp_nrm), showWarnings = FALSE)
 # 
 #  saveRDS(mir, file = paste0(path_hyp_nrm, substr(basename(f), 1, 4), "_mnfi.rds"))
 # }
+
 
 log = foreach (i = seq(length(hd_files)), .packages = c("raster", "RStoolbox")) %dopar% {
   f = hd_files[i]

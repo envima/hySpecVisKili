@@ -2,32 +2,39 @@
 
 source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 if(length(showConnections()) == 0){
-  cores = 3
+  cores = 2
   cl = parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
 }
 
-hd_files = list.files(path_hyp_aio, recursive = FALSE, full.names = TRUE)
+dir.create(paste0(path_hyp_raoq), showWarnings = FALSE)
+windows = c(3, 10)
+
+
+# Compute Rao's Q on original band and vegetation indices values
+hd_files = c(list.files(path_hyp_nrm, recursive = FALSE, full.names = TRUE), 
+             list.files(path_hyp_vegidcs, recursive = FALSE, full.names = TRUE))
+
 h_meta = readRDS(paste0(path_meta, "hyp_meta.rds"))
 
-dir.create(paste0(path_hyp_dividcs), showWarnings = FALSE)
-
 foreach(i = seq(length(hd_files))) %dopar% {
-  plotid = substr(basename(hd_files[[i]]), 1, 4)
+  productid = paste0(substr(filename, 1, nchar(filename)-4), "_raoq")
   r = readRDS(hd_files[[i]])
   # ra = aggregate(r, fact=2, fun=mean)
-  raomatrix <- spectralrao(as.list(r), 
-                           mode="multidimension", 
-                           distance_m="euclidean", 
-                           window=3, 
+  for(w in windows){
+    raomatrix <- spectralrao(as.list(r), 
+                             mode="multidimension", 
+                             distance_m="euclidean", 
+                             window=w, 
                            shannon=FALSE, 
-                           debugging=TRUE, 
-                           simplify=3)
-  raor = setValues(r[[1]], raomatrix[[1]])k,
-  names(raor) = plotid
-  saveRDS(raor, file = paste0(path_hyp_dividcs, 
-                            substr(basename(hd_files[[i]]), 1, 4), 
-                            "_dividcs.rds"))
+                             debugging=TRUE, 
+                             simplify=3)
+    raor = setValues(r[[1]], raomatrix[[1]])
+    names(raor) = productid
+    saveRDS(raor, file = paste0(path_hyp_raoq, 
+                                productid, "_", w, ".rds"))
+  }
 } 
+
 
 stopCluster(cl)
