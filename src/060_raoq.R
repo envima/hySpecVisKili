@@ -1,5 +1,5 @@
-# Compute spectral diversity indicies on original band stack and 
-# scaled vegetation inidces stack
+# Compute Rao's Q on original bands stack, scaled vegetation indices stack,
+# and mean distance from centroid band and vegetation index data.
 
 source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 # if(length(showConnections()) == 0){
@@ -9,12 +9,11 @@ source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_e
 # }
 
 dir.create(paste0(path_hyp_raoq), showWarnings = FALSE)
-windows = c(3, 10)
+windows = c(3)
 
-
-# Compute Rao's Q on original bands stack and scaled vegetation indices stack
 hd_files = c(list.files(path_hyp_nrm, recursive = FALSE, full.names = TRUE), 
-             list.files(path_hyp_vegidcs, recursive = FALSE, full.names = TRUE))
+             list.files(path_hyp_vegidcs, recursive = FALSE, full.names = TRUE),
+             list.files(path_hyp_kmdc, recursive = FALSE, full.names = TRUE))
 
 h_meta = readRDS(paste0(path_meta, "hyp_meta.rds"))
 

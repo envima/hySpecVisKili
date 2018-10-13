@@ -13,6 +13,7 @@ path_hyp_org = paste0(path_data, "/020_hypspec_org/")
 path_hyp_aio = paste0(path_data, "/025_hypspec_aio/")
 path_hyp_nrm = paste0(path_data, "/030_hypspec_nrm/")
 path_hyp_vegidcs = paste0(path_data, "/040_hypspec_vegidcs/")
+path_hyp_kmdc = paste0(path_data, "/050_hypspec_kmdc/")
 path_hyp_raoq = paste0(path_data, "/060_hypspec_raoq/")
 
 path_plots = paste0(path_data, "/plots/")
@@ -42,7 +43,7 @@ library(RStoolbox)
 library(reshape2)
 library(rgdal)
 # library(satellite)
-# library(satelliteTools)  # devtools::install_github("environmentalinformatics-marburg/satelliteTools")
+library(satelliteTools)  # devtools::install_github("environmentalinformatics-marburg/satelliteTools")
 # library(semPlot)
 library(sp)
 library(spacetime)
@@ -54,8 +55,8 @@ source(filepath_source)
 
 rasterOptions(tmpdir = path_temp)
 
-saga_cmd = "C:/OSGeo4W64/apps/saga/saga_cmd.exe "
+saga_cmd = "C:/OSGeo4W64/apps/saga-ltr/saga_cmd.exe"
 # initOTB("C:/OSGeo4W64/bin/")
-initOTB("C:/OSGeo4W64/OTB-5.8.0-win64/OTB-5.8.0-win64/bin/")
+initOTB("C:/OSGeo4W64/OTB-6.2.0-Win64/bin/")
 
 
