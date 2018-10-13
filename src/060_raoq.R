@@ -45,6 +45,8 @@ foreach (i = seq(length(hd_files))) %do% {
 } 
 
 
-#check hel3
-
 # stopCluster(cl)
+
+# Visually check data
+visCheck(datapath = path_hyp_raoq, polygonfile = paste0(path_plots, "BPolygon.shp"), band = 1)
+

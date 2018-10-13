@@ -33,6 +33,11 @@ foreach (i = seq(length(hd_files)), .packages = c("raster")) %dopar% {
   cc = which(complete.cases(rds))
   rds_cc = rds[cc, ]
   
+  # Scale vegetation indicies
+  if(grepl("vegidcs", filename)){
+    rds_cc = scale(rds_cc, center = TRUE, scale = TRUE)
+  }
+  
   km = kmeans(rds_cc, center = 1)
   kmd = sqrt(rowSums(rds_cc - fitted(km))**2)
   
@@ -46,3 +51,8 @@ foreach (i = seq(length(hd_files)), .packages = c("raster")) %dopar% {
 }  
   
 stopCluster(cl)
+
+
+# Visually check data
+visCheck(datapath = path_hyp_kmdc, polygonfile = paste0(path_plots, "BPolygon.shp"), band = 1)
+
