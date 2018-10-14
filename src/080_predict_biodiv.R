@@ -19,13 +19,15 @@ comb = createIndexFolds(x = comb, nested_cv = FALSE)
 comb = trainModel(x = comb,
                   metric = "RMSE",
                   n_var = NULL, 
-                  mthd = "pls",
+                  mthd = "rf",
                   mode = "ffs",
                   seed_nbr = 11, 
                   cv_nbr = NULL,
                   var_selection = "indv",
                   filepath_tmp = NULL)
 
+saveRDS(comb, file = paste0(path_comb_gpm, "ki_hyperspec_biodiv_non_scaled_modell_rf.rds"))
 
+# saveRDS(comb, file = paste0(path_comb_gpm, "ki_hyperspec_biodiv_non_scaled_modell.rds"))
 
 stopCluster(cl)
