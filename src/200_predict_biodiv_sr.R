@@ -4,6 +4,7 @@ if(Sys.info()["sysname"] == "Windows"){
 } else {
   filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
 }
+source(filepath_base)
 
 if(length(showConnections()) == 0){
   cores = 3
