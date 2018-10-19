@@ -25,6 +25,13 @@ trophic_levels = rbind(data.frame(tlevel = "Plants",
                        data.frame(tlevel = "Generalist",
                                   groups = c("SRmammals", "SRanimals", "SRsyrphids", "SRants", "SSRsnails")))
 
+head(comb)
+
+
+
+
+
+
 
 comb$SelCat = substr(as.character(comb$plotID), 1, 3)
 comb$SelNbr = substr(as.character(comb$plotID), 4, 4)

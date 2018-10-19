@@ -33,6 +33,6 @@ meta <- createGPMMeta(comb, type = "input",
 
 comb <- gpm(comb, meta, scale = FALSE)
 
-dir.create(paste0(path_comb_gpm), showWarnings = FALSE)
+dir.create(paste0(path_comb_gpm_sr), showWarnings = FALSE)
 
-saveRDS(comb, file = paste0(path_comb_gpm, "ki_hyperspec_biodiv_non_scaled.rds"))
+saveRDS(comb, file = paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))

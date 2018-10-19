@@ -11,6 +11,7 @@ dir.create(paste0(path_hyp_pred), showWarnings = FALSE)
 
 hd_files = c(list.files(path_hyp_vegidcs, recursive = FALSE, full.names = TRUE),
              list.files(path_hyp_kmdc, recursive = FALSE, full.names = TRUE),
+             list.files(path_hyp_glcm, recursive = FALSE, full.names = TRUE),
              list.files(path_hyp_raoq, recursive = FALSE, full.names = TRUE))
 
 h_meta = readRDS(paste0(path_meta, "hyp_meta.rds"))
@@ -36,11 +37,13 @@ preds = foreach (i = seq(length(hd_files))) %do% {
 } 
 
 grp = list(grep("vegidcs.rds", hd_files),
-           grep("vegidcs_kmdc.rds", hd_files),
            grep("vegidcs_raoq_3.rds", hd_files),
+           grep("vegidcs_kmdc.rds", hd_files),
+           grep("vegidcs_kmdc_glcm.rds", hd_files),
            grep("vegidcs_kmdc_raoq_3.rds", hd_files),
-           grep("pcai_kmdc.rds", hd_files),
            grep("pcai_raoq_3.rds", hd_files),
+           grep("pcai_kmdc.rds", hd_files),
+           grep("pcai_kmdc_glcm.rds", hd_files),
            grep("pcai_kmdc_raoq_3.rds", hd_files))
 
 if(length(unlist(grp)) == length(preds)){
