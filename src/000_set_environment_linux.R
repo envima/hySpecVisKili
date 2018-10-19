@@ -2,10 +2,10 @@
 if(Sys.info()["sysname"] == "Windows"){
   filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/"
 } else {
-  filepath_base = "/mnt/sd19006/data/users/tnauss/HySpec_KiLi/"
+  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/"
 }
 
-filepath_source = paste0(filepath_base, "src/001_functions.R")
+filepath_source = paste0(filepath_base, "HySpec_KiLi/src/001_functions.R")
 path_data = paste0(filepath_base, "/data/")
 path_biodiv = paste0(path_data, "/biodiv/")
 
