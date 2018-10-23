@@ -1,4 +1,4 @@
-# Set path ---------------------------------------------------------------------Kommentar
+# Set path ---------------------------------------------------------------------
 if(Sys.info()["sysname"] == "Windows"){
   filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/"
 } else {
