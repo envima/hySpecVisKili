@@ -20,7 +20,7 @@ comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
 # Predict with elevation and lui only
 comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[c(1,7)]
 
-foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
   
   model = comb
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -47,7 +47,7 @@ foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret"
 comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[c(1:7)]
 
 
-foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
   
   model = comb
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -72,7 +72,7 @@ foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret"
 # Predict with hyperspectral data only
 comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[-c(1:7)]
 
-foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
   
   model = comb
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
