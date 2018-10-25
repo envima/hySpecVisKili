@@ -19,6 +19,7 @@ path_hyp_glcm = paste0(path_data, "/070_hypspec_glcm/")
 path_hyp_pred = paste0(path_data, "/090_hypspec_pred/")
 path_comb_gpm_sr = paste0(path_data, "/100_comb_gpm_sr/")
 path_model_gpm_sr = paste0(path_data, "/200_model_gpm_sr/")
+path_analysis_sr = paste0(path_data, "/300_analysis_sr/")
 
 path_plots = paste0(path_data, "/plots/")
 path_rdata = paste0(path_data, "/rdata/")

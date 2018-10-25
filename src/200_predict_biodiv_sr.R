@@ -7,7 +7,7 @@ if(Sys.info()["sysname"] == "Windows"){
 source(filepath_base)
 
 if(length(showConnections()) == 0){
-  cores = 3
+  cores = 20
   cl = parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
 }
@@ -15,13 +15,70 @@ if(length(showConnections()) == 0){
 dir.create(paste0(path_model_gpm_sr), showWarnings = FALSE)
 
 comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
+
+
+# Predict with elevation and lui only
+comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[c(1,7)]
+
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+  
+  model = comb
+  model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+  model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+  model = createIndexFolds(x = model, nested_cv = FALSE)
+  model = trainModel(x = model,
+                     metric = "RMSE",
+                     n_var = NULL, 
+                     mthd = "rf",
+                     mode = "ffs",
+                     seed_nbr = 11, 
+                     cv_nbr = NULL,
+                     var_selection = "indv",
+                     filepath_tmp = NULL)
+  
+  saveRDS(model, file = paste0(path_model_gpm_sr, 
+                               "ki_sr_elui_non_scaled_rf_", 
+                               model@meta$input$RESPONSE_FINAL, 
+                               ".rds"))
+}
+
+
+# Predict with all elevation and lui information only
+comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[c(1:7)]
+
+
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+  
+  model = comb
+  model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+  model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+  model = createIndexFolds(x = model, nested_cv = FALSE)
+  model = trainModel(x = model,
+                     metric = "RMSE",
+                     n_var = NULL, 
+                     mthd = "rf",
+                     mode = "ffs",
+                     seed_nbr = 11, 
+                     cv_nbr = NULL,
+                     var_selection = "indv",
+                     filepath_tmp = NULL)
+  
+  saveRDS(model, file = paste0(path_model_gpm_sr, 
+                               "ki_sr_eall_non_scaled_rf_", 
+                               model@meta$input$RESPONSE_FINAL, 
+                               ".rds"))
+}
+
+# Predict with hyperspectral data only
 comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[-c(1:7)]
 
-lapply(comb@meta$input$RESPONSE, function(r){
-  comb@meta$input$RESPONSE_FINAL = r
-  comb@data$input = comb@data$input[complete.cases(comb@data$input[, c(comb@meta$input$RESPONSE_FINAL, comb@meta$input$PREDICTOR_FINAL)]), ]
-  comb = createIndexFolds(x = comb, nested_cv = FALSE)
-  comb = trainModel(x = comb,
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "rf", "CAST")) %dopar% {
+  
+  model = comb
+  model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+  model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+  model = createIndexFolds(x = model, nested_cv = FALSE)
+  model = trainModel(x = model,
                     metric = "RMSE",
                     n_var = NULL, 
                     mthd = "rf",
@@ -30,17 +87,11 @@ lapply(comb@meta$input$RESPONSE, function(r){
                     cv_nbr = NULL,
                     var_selection = "indv",
                     filepath_tmp = NULL)
-  saveRDS(comb, file = paste0(path_model_gpm_sr, 
-                              "ki_hs_bd_sr_non_scaled_rf_rso_", 
-                              r, 
+  
+    saveRDS(model, file = paste0(path_model_gpm_sr, 
+                              "ki_sr_spec_non_scaled_rf_", 
+                              model@meta$input$RESPONSE_FINAL, 
                               ".rds"))
-})
-
-
-
-
-
-
-# saveRDS(comb, file = paste0(path_model_gpm_sr, "ki_hyperspec_biodiv_non_scaled_modell.rds"))
+}
 
 stopCluster(cl)
