@@ -16,38 +16,64 @@ dir.create(path_analysis_sr, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
-model_files = list.files(path_model_gpm_sr, full.names = TRUE)
-
-all_models = readRDS(model_files[[1]])
-all_models@log = NULL
-
-for(i in (seq(2, length(model_files)))){
-  all_models@model[[1]][[i]] = readRDS(model_files[[i]])@model[[1]][[1]]
-}
 
 
+mtypes = c("*elui*", "*eall*", "*spec*")
 
-varImp(all_models@model[[1]][[1]][[1]]$model)
+mtypes = c("*eall*", "*spec*")
 
-caret::varImp(all_models@model[[1]][[1]][[1]]$model)
+model_results = lapply(mtypes, function(mt){
+  model_files = list.files(path_model_gpm_sr, full.names = TRUE,
+                           pattern = glob2rx(mt))
+  
+  all_models = readRDS(model_files[[1]])
+  
+  for(i in (seq(2, length(model_files)))){
+    all_models@model[[1]][[i]] = readRDS(model_files[[i]])@model[[1]][[1]]
+  }
+  
+  smr = lapply(all_models@model[[1]], function(m){
+    data.frame(mtype = mt,
+               resp = m[[1]]$response,
+               m[[1]]$model$results[m[[1]]$model$results$mtry == 
+                                      m[[1]]$model$bestTune$mtry,]
+    )
+  })
+  smr = do.call("rbind", smr)
+  return(smr)
+})
 
-tune = m@meta$input$RESPONSE_FINAL
-perf_mean = m@model[[1]][[1]][[1]]$model$results[m@model[[1]][[1]][[1]]$model$results$mtry == m@model[[1]][[1]][[1]]$model$bestTune[, 1],]
-perf_resmpls = m@model[[1]][[1]][[1]]$model$resample
-return(data.frame(SR = n, Results = t))
+model_results = do.call("rbind", model_results)
+
+model_results[order(model_results$resp),]
 
 
-model_files
-
-ms = do.call("rbind", ms)
-ms[, c(1, 4)]
 
 
-varImp(m@model$rf_ffs[[1]][[1]]$model$finalModel$importance)
 
-var_imp <- compVarImp(m@model, scale = FALSE)
-var_imp_scale <- compVarImp(models, scale = TRUE)
-plotVarImp(var_imp)
-plotVarImpHeatmap(var_imp_scale, xlab = "Species", ylab = "Band")
-tstat <- compContTests(models, mean = TRUE)
-summary(tstat[[2]])
+
+
+# varImp(all_models@model[[1]][[1]][[1]]$model)
+# 
+# caret::varImp(all_models@model[[1]][[1]][[1]]$model)
+# 
+# tune = m@meta$input$RESPONSE_FINAL
+# perf_mean = m@model[[1]][[1]][[1]]$model$results[m@model[[1]][[1]][[1]]$model$results$mtry == m@model[[1]][[1]][[1]]$model$bestTune[, 1],]
+# perf_resmpls = m@model[[1]][[1]][[1]]$model$resample
+# return(data.frame(SR = n, Results = t))
+# 
+# 
+# model_files
+# 
+# ms = do.call("rbind", ms)
+# ms[, c(1, 4)]
+# 
+# 
+# varImp(m@model$rf_ffs[[1]][[1]]$model$finalModel$importance)
+# 
+# var_imp <- compVarImp(m@model, scale = FALSE)
+# var_imp_scale <- compVarImp(models, scale = TRUE)
+# plotVarImp(var_imp)
+# plotVarImpHeatmap(var_imp_scale, xlab = "Species", ylab = "Band")
+# tstat <- compContTests(models, mean = TRUE)
+# summary(tstat[[2]])
