@@ -16,13 +16,10 @@ dir.create(path_analysis_sr, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
+mtypes = c("*elui*", "*spec*", "*elsp*")
 
 
-mtypes = c("*elui*", "*eall*", "*spec*")
-
-mtypes = c("*eall*", "*spec*")
-
-model_results = lapply(mtypes, function(mt){
+all_models = lapply(mtypes, function(mt){
   model_files = list.files(path_model_gpm_sr, full.names = TRUE,
                            pattern = glob2rx(mt))
   
@@ -32,25 +29,32 @@ model_results = lapply(mtypes, function(mt){
     all_models@model[[1]][[i]] = readRDS(model_files[[i]])@model[[1]][[1]]
   }
   
-  smr = lapply(all_models@model[[1]], function(m){
-    data.frame(mtype = mt,
-               resp = m[[1]]$response,
-               m[[1]]$model$results[m[[1]]$model$results$mtry == 
-                                      m[[1]]$model$bestTune$mtry,]
-    )
-  })
-  smr = do.call("rbind", smr)
-  return(smr)
+  return(all_models)
+  
 })
+
+names(all_models) = mtypes
+
+var_imp <- compVarImp(all_models$`*elui*`@model$rf_ffs, scale = FALSE)
+var_imp_scale <- compVarImp(all_models$`*elui*`@model$rf_ffs, scale = TRUE)
+plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+tstat <- compContTests(models, mean = TRUE)
+summary(tstat[[2]])
+
+# smr = lapply(all_models@model[[1]], function(m){
+#   data.frame(mtype = mt,
+#              resp = m[[1]]$response,
+#              m[[1]]$model$results[m[[1]]$model$results$mtry == 
+#                                     m[[1]]$model$bestTune$mtry,]
+#   )
+# })
+# smr = do.call("rbind", smr)
+# return(smr)
 
 model_results = do.call("rbind", model_results)
 
 model_results[order(model_results$resp),]
-
-
-
-
-
 
 
 # varImp(all_models@model[[1]][[1]][[1]]$model)
