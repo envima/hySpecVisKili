@@ -38,7 +38,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
                      filepath_tmp = NULL)
   
   saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
-                               "ki_sr_elui_non_scaled_elev_res_rf_", 
+                               "ki_sr_elui_non_scaled_elev_res_pls_", 
                                model@meta$input$RESPONSE_FINAL, 
                                ".rds"))
 }
@@ -63,7 +63,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
                     filepath_tmp = NULL)
   
     saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
-                              "ki_sr_spec_non_scaled_elev_res_rf_", 
+                              "ki_sr_spec_non_scaled_elev_res_pls_", 
                               model@meta$input$RESPONSE_FINAL, 
                               ".rds"))
 }
@@ -89,7 +89,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
                      filepath_tmp = NULL)
   
   saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
-                               "ki_sr_elsp_non_scaled_elev_res_rf_", 
+                               "ki_sr_elsp_non_scaled_elev_res_pls_", 
                                model@meta$input$RESPONSE_FINAL, 
                                ".rds"))
 }
@@ -118,7 +118,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
                      filepath_tmp = NULL)
   
   saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
-                               "ki_sr_kmra_non_scaled_elev_res_rf_", 
+                               "ki_sr_kmra_non_scaled_elev_res_pls_", 
                                model@meta$input$RESPONSE_FINAL, 
                                ".rds"))
 }
