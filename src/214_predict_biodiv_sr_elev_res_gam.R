@@ -21,7 +21,7 @@ comb_elev_res = readRDS(paste0(path_comb_gpm_sr_elev_res, "ki_hyperspec_biodiv_n
 comb_elev_res@meta$input$PREDICTOR_FINAL = comb_elev_res@meta$input$PREDICTOR[c(1:7)]
 
 
-foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
+foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "mgcv", "CAST")) %dopar% {
   
   model = comb_elev_res
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -30,7 +30,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
   model = trainModel(x = model,
                      metric = "RMSE",
                      n_var = NULL, 
-                     mthd = "rf",
+                     mthd = "gam",
                      mode = "ffs",
                      seed_nbr = 11, 
                      cv_nbr = NULL,
@@ -46,7 +46,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
 # Predict with hyperspectral data only
 comb_elev_res@meta$input$PREDICTOR_FINAL = comb_elev_res@meta$input$PREDICTOR[-c(1:7)]
 
-foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
+foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "mgcv", "CAST")) %dopar% {
   
   model = comb_elev_res
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -55,7 +55,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
   model = trainModel(x = model,
                     metric = "RMSE",
                     n_var = NULL, 
-                    mthd = "rf",
+                    mthd = "gam",
                     mode = "ffs",
                     seed_nbr = 11, 
                     cv_nbr = NULL,
@@ -72,7 +72,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
 # Predict with all data
 comb_elev_res@meta$input$PREDICTOR_FINAL = comb_elev_res@meta$input$PREDICTOR
 
-foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
+foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "mgcv", "CAST")) %dopar% {
   
   model = comb_elev_res
   model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -81,7 +81,7 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
   model = trainModel(x = model,
                      metric = "RMSE",
                      n_var = NULL, 
-                     mthd = "rf",
+                     mthd = "gam",
                      mode = "ffs",
                      seed_nbr = 11, 
                      cv_nbr = NULL,
@@ -90,6 +90,35 @@ foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm"
   
   saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
                                "ki_sr_elsp_non_scaled_elev_res_rf_", 
+                               model@meta$input$RESPONSE_FINAL, 
+                               ".rds"))
+}
+
+
+
+# Predict with kmdc and raoq only
+comb_elev_res@meta$input$PREDICTOR_FINAL = unique(comb@meta$input$PREDICTOR[
+  c(grep("kmdc", comb@meta$input$PREDICTOR), 
+    grep("raoq", comb@meta$input$PREDICTOR))])
+
+foreach (i = seq(length(comb_elev_res@meta$input$RESPONSE)), .packages = c("gpm", "caret", "mgcv", "CAST")) %dopar% {
+  
+  model = comb_elev_res
+  model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+  model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+  model = createIndexFolds(x = model, nested_cv = FALSE)
+  model = trainModel(x = model,
+                     metric = "RMSE",
+                     n_var = NULL, 
+                     mthd = "gam",
+                     mode = "ffs",
+                     seed_nbr = 11, 
+                     cv_nbr = NULL,
+                     var_selection = "indv",
+                     filepath_tmp = NULL)
+  
+  saveRDS(model, file = paste0(path_model_gpm_sr_elev_res, 
+                               "ki_sr_kmra_non_scaled_elev_res_rf_", 
                                model@meta$input$RESPONSE_FINAL, 
                                ".rds"))
 }
