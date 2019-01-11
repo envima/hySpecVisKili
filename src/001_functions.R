@@ -1,4 +1,4 @@
-# Visually check data
+# Visually check data ----------------------------------------------------------
 visCheck = function(datapath, polygonfile, band = 109){
   ds = list.files(datapath, full.names = TRUE)
   pb = shapefile(polygonfile)
@@ -16,7 +16,116 @@ visCheck = function(datapath, polygonfile, band = 109){
 }
 
 
-# Spectral rao
+# Compile residual datasets ----------------------------------------------------
+compResData = function(comb_sr, pt, mt){
+  comb_sr_elev_res = comb_sr
+  model_files = list.files(path_model_gpm_sr, full.names = TRUE,
+                           pattern = glob2rx(paste0(pt, mt)))
+  
+  for(m in model_files){
+    act_model = readRDS(m)@model[[1]][[1]][[1]]
+    
+    if(inherits(act_model$model, "try-error")){
+      act_predictions = NA
+    } else {
+      non_na_pos = which(
+        complete.cases(
+          comb_sr_elev_res@data$input[, act_model$model$selectedvars]))
+      
+      act_predictions = NA
+      act_predictions[non_na_pos] = predict(act_model$model, comb_sr@data$input[non_na_pos,])
+    }  
+      comb_sr_elev_res@data$input[, act_model$response] = 
+        comb_sr_elev_res@data$input[, act_model$response] - 
+        act_predictions
+    
+    colname_pos = grep(act_model$response, colnames(comb_sr_elev_res@data$input))
+    colnames(comb_sr_elev_res@data$input)[colname_pos] = 
+      paste0(colnames(comb_sr_elev_res@data$input)[colname_pos], 
+             gsub("[*]", "", paste0("_", mt, "_", pt, "_res")))
+  }
+  
+  comb_sr_elev_res@meta$input$RESPONSE = 
+    paste0(comb_sr_elev_res@meta$input$RESPONSE,
+           gsub("[*]", "", paste0("_", mt, "_", pt, "_res")))
+  
+  comb_sr_elev_res@meta$input$RESPONSE_FINAL = comb_sr_elev_res@meta$input$RESPONSE
+  return(comb_sr_elev_res)
+}
+
+
+
+# Train and tune models --------------------------------------------------------
+compModels = function(model, pt, mt){
+  foreach (i = seq(length(model@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
+    
+    model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+    model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+    model = createIndexFolds(x = model, nested_cv = FALSE)
+    model = trainModel(x = model,
+                       metric = "RMSE",
+                       n_var = NULL, 
+                       mthd = "rf",
+                       mode = "ffs",
+                       seed_nbr = 11, 
+                       cv_nbr = NULL,
+                       var_selection = "indv",
+                       filepath_tmp = NULL)
+    
+    outfile_name =   gsub("[*]", "", paste0(path_model_gpm_sr_res, 
+                                            "ki_sr_", pt, "_non_scaled_", mt, "_", 
+                                            model@meta$input$RESPONSE_FINAL,
+                                            ".rds"))
+    saveRDS(model, file = outfile_name)
+  }
+}
+
+
+
+# Collect model performance ----------------------------------------------------
+modelPerformance = function(model){
+  smr_all = lapply(names(model), function(pt){
+    smr_pt = lapply(model[[pt]]@model[[1]], function(mi){
+      if(inherits(mi[[1]]$model, "try-error")){
+        df = NULL
+      } else {
+        if(ncol(mi[[1]]$model$resample) == 6){
+          temp = rbind(mi[[1]]$model$resample[
+            mi[[1]]$model$resample$method == mi[[1]]$model$bestTune$method & 
+              mi[[1]]$model$resample$select == mi[[1]]$model$bestTune$select, c(1:3, 6)],
+            data.frame(
+              t(colMeans(mi[[1]]$model$resample[
+                mi[[1]]$model$resample$method == mi[[1]]$model$bestTune$method & 
+                  mi[[1]]$model$resample$select == mi[[1]]$model$bestTune$select, 1:3], na.rm = TRUE)),
+              Resample = "Mean"))
+        } else {
+          temp = rbind(mi[[1]]$model$resample,
+                       data.frame(t(colMeans(mi[[1]]$model$resample[, 1:3], na.rm = TRUE)),
+                                  Resample = "Mean"))
+          
+        }
+        temp$RMSE_normSD =  temp$RMSE/sd(mi[[1]]$model$trainingData$.outcome)
+        df = data.frame(mtype = mi[[1]]$model$method,
+                        ptype = pt,
+                        resp = mi[[1]]$response,
+                        mi[[1]]$model$bestTune,
+                        nvars = length(mi[[1]]$model$selectedvars),
+                        temp)
+        # for(i in seq(df$nvars)){
+        #   df[paste0("V",i)] = mi[[1]]$model$selectedvars[i]
+        # }
+      }
+    })
+    smr_pt = do.call("rbind", smr_pt)
+    return(smr_pt)
+  })
+  smr_all = do.call("rbind", smr_all)
+  return(smr_all)
+}
+
+
+
+# Spectral rao -----------------------------------------------------------------
 ######### SPECTRALRAO #############################
 ## Developed by Matteo Marcantonio
 ## Latest update: 04th October 2018
@@ -32,8 +141,8 @@ visCheck = function(datapath, polygonfile, band = 109){
 ## where S is the number of pixel classes).
 ## -------------------------------------------------
 ## Find more info and application here: 
-## 1) https://doi.org/10.1016/j.ecolind.2016.07.039 Titel anhand dieser DOI in Citavi-Projekt übernehmen 
-## 2) https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12941 %CITAVIPICKER£10.1111/2041-210X.12941£Titel anhand dieser DOI in Citavi-Projekt übernehmen£%
+## 1) https://doi.org/10.1016/j.ecolind.2016.07.039 Titel anhand dieser DOI in Citavi-Projekt ?bernehmen 
+## 2) https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12941 %CITAVIPICKER?10.1111/2041-210X.12941?Titel anhand dieser DOI in Citavi-Projekt ?bernehmen?%
 #####################################################
 # Function
 spectralrao <- function(input, distance_m="euclidean", p=NULL, window=9, mode="classic", lambda=0, shannon=FALSE, rescale=FALSE, na.tolerance=0.0, simplify=3, nc.cores=1, cluster.type="MPI", debugging=FALSE, ...)
@@ -451,7 +560,7 @@ spectralrao <- function(input, distance_m="euclidean", p=NULL, window=9, mode="c
           # raoqe[rw-w,cl-w] <- sum(rep(vout,2) * (1/(window)^4),na.rm=TRUE)
           return(data.frame(row=rw-w, col=cl-w, value=sum(rep(vout,2) * (1/(window)^4),na.rm=TRUE)))
         }
-
+        
       }
       
       

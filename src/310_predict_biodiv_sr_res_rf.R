@@ -1,0 +1,33 @@
+# comb_elev_resine hyperspectral predictores and biodiversity variables in gpm class.
+if(Sys.info()["sysname"] == "Windows"){
+  filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
+} else {
+  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
+}
+source(filepath_base)
+
+if(length(showConnections()) == 0){
+  cores = 20
+  cl = parallel::makeCluster(cores)
+  doParallel::registerDoParallel(cl)
+}
+
+dir.create(paste0(path_model_gpm_sr_res), showWarnings = FALSE)
+
+# Predict gam, pls and rf elevation and elevation/lui based residuals using 
+# pls and rf models with hyperspectral data only
+res_suffixes = c("_gam_elev_res", "pls_elui_res", "rf_elui_res")
+mtypes = c("*pls*", "*rf*")
+pt = "*spec*"
+
+
+for(res_suffix in res_suffixes){
+  comb_elev_res = readRDS(paste0(path_comb_gpm_sr_res, "ki_hyperspec_biodiv_non_scaled",
+                                 res_suffix, ".rds"))
+  comb_elev_res@meta$input$PREDICTOR_FINAL = comb_elev_res@meta$input$PREDICTOR[-c(1:7)]
+  for(mt in mtypes){
+    compModels(model = comb_elev_res, pt, mt)
+  }
+}
+
+stopCluster(cl)

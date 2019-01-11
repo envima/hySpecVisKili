@@ -16,6 +16,30 @@ dir.create(paste0(path_model_gpm_sr), showWarnings = FALSE)
 
 comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
 
+# Predict with elevation information only
+comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[1]
+
+foreach (i = seq(length(comb@meta$input$RESPONSE)), .packages = c("gpm", "caret", "mgcv", "CAST")) %dopar% {
+  
+  model = comb
+  model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
+  model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+  model = createIndexFolds(x = model, nested_cv = FALSE)
+  model = trainModel(x = model,
+                     metric = "RMSE",
+                     n_var = NULL, 
+                     mthd = "gam",
+                     mode = "none",
+                     seed_nbr = 11, 
+                     cv_nbr = NULL,
+                     var_selection = "indv",
+                     filepath_tmp = NULL)
+  
+  saveRDS(model, file = paste0(path_model_gpm_sr, 
+                               "ki_sr_elev_non_scaled_gam_", 
+                               model@meta$input$RESPONSE_FINAL, 
+                               ".rds"))
+}
 
 # Predict with all elevation and lui information only
 comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[c(1:7)]
