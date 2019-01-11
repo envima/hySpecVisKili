@@ -26,7 +26,7 @@ for(res_suffix in res_suffixes){
                                  res_suffix, ".rds"))
   comb_elev_res@meta$input$PREDICTOR_FINAL = comb_elev_res@meta$input$PREDICTOR[-c(1:7)]
   for(mt in mtypes){
-    compModels(model = comb_elev_res, pt, mt)
+    compModels(model = comb_elev_res, pt = pt, mt = mt, outpath = path_model_gpm_sr_res)
   }
 }
 

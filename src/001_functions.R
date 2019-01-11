@@ -56,7 +56,7 @@ compResData = function(comb_sr, pt, mt){
 
 
 # Train and tune models --------------------------------------------------------
-compModels = function(model, pt, mt){
+compModels = function(model, pt, mt, outpath){
   foreach (i = seq(length(model@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
     
     model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
@@ -64,18 +64,19 @@ compModels = function(model, pt, mt){
     model = createIndexFolds(x = model, nested_cv = FALSE)
     model = trainModel(x = model,
                        metric = "RMSE",
-                       n_var = NULL, 
+                       n_var = NULL,
                        mthd = "rf",
                        mode = "ffs",
-                       seed_nbr = 11, 
+                       seed_nbr = 11,
                        cv_nbr = NULL,
                        var_selection = "indv",
                        filepath_tmp = NULL)
-    
-    outfile_name =   gsub("[*]", "", paste0(path_model_gpm_sr_res, 
+
+    outfile_name =   gsub("[*]", "", paste0(outpath, 
                                             "ki_sr_", pt, "_non_scaled_", mt, "_", 
                                             model@meta$input$RESPONSE_FINAL,
                                             ".rds"))
+    print(outfile_name)
     saveRDS(model, file = outfile_name)
   }
 }
