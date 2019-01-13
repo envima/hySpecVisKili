@@ -1,4 +1,4 @@
-# Combine hyperspectral predictores and biodiversity variables in gpm class.
+# Compile species richness dataset containing residuals from some previous modelling
 if(Sys.info()["sysname"] == "Windows"){
   filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
 } else {
@@ -6,6 +6,8 @@ if(Sys.info()["sysname"] == "Windows"){
 }
 
 source(filepath_base)
+
+
 dir.create(paste0(path_comb_gpm_sr_res), showWarnings = FALSE)
 
 

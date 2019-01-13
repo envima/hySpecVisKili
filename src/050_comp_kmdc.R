@@ -2,11 +2,13 @@
 # scaled vegetation inidces stack
 
 source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+
 if(length(showConnections()) == 0){
   cores = 3
   cl = parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
 }
+
 
 dir.create(paste0(path_hyp_kmdc), showWarnings = FALSE)
 

@@ -1,0 +1,123 @@
+---
+title: "500 Analyse Biodiv-RS"
+output: html_notebook
+---
+
+```{r, include = FALSE}
+source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+
+dir.create(path_analysis_sr, showWarnings = FALSE)
+
+all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))
+
+
+# Collect model performance
+gam_sr = modelPerformance(all_models[["gam"]])
+pls_sr = modelPerformance(all_models[["pls"]])
+rf_sr = modelPerformance(all_models[["rf"]])
+
+summary(gam_sr)
+summary(pls_sr)
+summary(rf_sr)
+
+# Get trophic levels
+tl = read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
+gam_sr = merge(gam_sr, tl, by.x = "resp", by.y = "Species")
+pls_sr = merge(pls_sr, tl, by.x = "resp", by.y = "Species")
+rf_sr = merge(rf_sr, tl, by.x = "resp", by.y = "Species")
+```
+
+# Compare PLS and RF
+```{r, echo=FALSE}
+models_sr = rbind(pls_sr[, -4], rf_sr[, -4])
+models_sr$mptype = paste0(models_sr$mtype, "_", models_sr$ptype)
+models_sr$mptype = factor(models_sr$mptype, levels = c("pls_elsp", "rf_elsp",
+                                                       "pls_elui", "rf_elui",
+                                                       "pls_kmra", "rf_kmra",
+                                                       "pls_spec", "rf_spec"))
+
+
+ggplot(data = models_sr[models_sr$ptype == "elui" | models_sr$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+```
+
+```{r, echo=FALSE}
+pls_rf_sr = merge(pls_sr, rf_sr, by = c("ptype", "resp", "Resample"), all.y = TRUE)
+colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))] = 
+  gsub("\\.x", "_pls", colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))])
+colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))] = 
+  gsub("\\.y", "_rf", colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))])
+# nrow(pls_rf_sr)
+
+ptypes = c("elui", "kmra", "spec", "elsp")
+perf_check = lapply(ptypes, function(pt){
+  subdf = pls_rf_sr[!is.na(pls_rf_sr$RMSE_pls) & 
+                      pls_rf_sr$ptype == pt &
+                      pls_rf_sr$Resample == "Mean", ]
+  rownames(subdf[subdf$RMSE_pls < subdf$RMSE_rf, ])
+})
+names(perf_check) = ptypes
+```
+
+# Check performance of PLS and RF
+```{r, echo = FALSE}
+for(i in seq(length(perf_check))){
+rmse_perf = sort(round(1-pls_rf_sr[as.numeric(perf_check[[i]]), "RMSE_pls"] / 
+                         pls_rf_sr[as.numeric(perf_check[[i]]), "RMSE_rf"],2))
+var_rf_prct = sort(round(pls_rf_sr[as.numeric(perf_check[[i]]), "nvars_rf"] / 
+                           pls_rf_sr[as.numeric(perf_check[[i]]), "nvars_pls"],2))
+level_pls = sort(table(pls_rf_sr[as.numeric(perf_check[[i]]), "Level_pls"]))
+print(names(perf_check[i]))
+print(pls_rf_sr[as.numeric(perf_check[[i]]),])
+cat("RMSE (1 - PLS/RF):", rmse_perf, "\n")
+cat("Var number (RF/PLS):", var_rf_prct, "\n")
+cat("Levels with PLS is better:", level_pls, "\n")
+cat("\n\n")
+}
+```
+
+# Collect variable importance
+## Number of variables
+```{r}
+pls_rf_sr_long = melt(pls_rf_sr[pls_rf_sr$Resample == "Mean", c(1, 2, 6, 13)], id.vars = c("ptype", "resp"))
+ggplot(data = pls_rf_sr_long, aes(x = variable, y = value, fill = ptype)) +
+  geom_boxplot() + 
+  labs(list(x = "Models", y = "Number of variables" ,
+            fill = "Predictor Set")) +
+  theme_bw()
+```
+
+
+# Variable importance for PLS
+```{r, echo=FALSE}
+var_imp <- compVarImp(all_models[["pls"]][["spec"]]@model[[1]], scale = FALSE)
+# plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+```
+
+# Variable importance for RF
+```{r, echo=FALSE}
+var_imp <- compVarImp(all_models[["rf"]][["spec"]]@model[[1]], scale = FALSE)
+# plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+```
+
+
+# Trophic levels
+```{r}
+var_imp_levels = var_imp
+for(i in seq(length(var_imp_levels))){
+  var_imp_levels[[i]]$RESPONSE = tl$Level[grep(var_imp_levels[[i]]$RESPONSE[1], tl$Species)]
+}
+plotVarImpHeatmap(var_imp_levels, xlab = "Species", ylab = "Band")
+```
+
+
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

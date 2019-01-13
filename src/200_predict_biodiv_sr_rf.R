@@ -1,4 +1,4 @@
-# Combine hyperspectral predictores and biodiversity variables in gpm class.
+# Predict species richness using different models and predictor sets
 if(Sys.info()["sysname"] == "Windows"){
   filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
 } else {
@@ -11,6 +11,7 @@ if(length(showConnections()) == 0){
   cl = parallel::makeCluster(cores)
   doParallel::registerDoParallel(cl)
 }
+
 
 dir.create(paste0(path_model_gpm_sr), showWarnings = FALSE)
 

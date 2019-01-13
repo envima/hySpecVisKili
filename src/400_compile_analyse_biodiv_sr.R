@@ -1,17 +1,13 @@
-# Combine hyperspectral predictores and biodiversity variables in gpm class.
-if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
-} else {
-  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
-}
-source(filepath_base)
+# Combine species richness model results in one variable.
+source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+
 
 dir.create(path_compile_analysis_sr, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
 ptypes = c("*elui*", "*kmra*", "*spec*", "*elsp*")
-mtypes = c("*gam*", "*pls*", "*rd*")
+mtypes = c("*gam*", "*pls*", "*rf*")
 
 all_models = lapply(mtypes, function(mt){
   all_pmodels = lapply(ptypes, function(pt){

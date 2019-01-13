@@ -1,10 +1,7 @@
 # Combine hyperspectral predictores and biodiversity variables in gpm class.
-if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
-} else {
-  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
-}
-source(filepath_base)
+
+source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+
 
 dir.create(path_compile_analysis_sr_elev_res, showWarnings = FALSE)
 

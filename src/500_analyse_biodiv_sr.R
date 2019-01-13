@@ -1,16 +1,6 @@
-# Combine hyperspectral predictores and biodiversity variables in gpm class.
-if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
-} else {
-  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
-}
-source(filepath_base)
+# Analyse species richness prediction models
 
-if(length(showConnections()) == 0){
-  cores = 3
-  cl = parallel::makeCluster(cores)
-  doParallel::registerDoParallel(cl)
-}
+source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 
 dir.create(path_analysis_sr, showWarnings = FALSE)
 
@@ -26,6 +16,8 @@ summary(gam_sr)
 summary(pls_sr)
 summary(rf_sr)
 
+
+# Compare pls and rf
 models_sr = rbind(pls_sr[, -4], rf_sr[, -4])
 models_sr$mptype = paste0(models_sr$mtype, "_", models_sr$ptype)
 models_sr$mptype = factor(models_sr$mptype, levels = c("pls_elsp", "rf_elsp",
@@ -33,23 +25,45 @@ models_sr$mptype = factor(models_sr$mptype, levels = c("pls_elsp", "rf_elsp",
                                                        "pls_kmra", "rf_kmra",
                                                        "pls_spec", "rf_spec"))
 
-# Plot model performance
-ggplot(data = pls_sr[pls_sr$ptype == "elui" | pls_sr$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = ptype)) + 
-  geom_boxplot()+
-  labs(list(title = "PLS", fill = "Predictor Set")) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-ggplot(data = rf_sr[rf_sr$ptype == "elui" | rf_sr$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = ptype)) + 
-  geom_boxplot() +
-  labs(list(title = "RF", fill = "Predictor Set")) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
 ggplot(data = models_sr[models_sr$ptype == "elui" | models_sr$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
   geom_boxplot() +
   labs(list(title = "PLS and RF", fill = "Predictor Set")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+pls_rf_sr = merge(pls_sr, rf_sr, by = c("ptype", "resp", "Resample"), all.y = TRUE)
+colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))] = 
+  gsub("\\.x", "_pls", colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))])
+colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))] = 
+  gsub("\\.y", "_rf", colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))])
+# nrow(pls_rf_sr)
+
+ptypes = c("elui", "kmra", "spec", "elsp")
+perf_check = lapply(ptypes, function(pt){
+  subdf = pls_rf_sr[!is.na(pls_rf_sr$RMSE_pls) & 
+                      pls_rf_sr$ptype == pt &
+                      pls_rf_sr$Resample == "Mean", ]
+  rownames(subdf[subdf$RMSE_pls < subdf$RMSE_rf, ])
+})
+names(perf_check) = ptypes
+
+# Check performance of PLS and RF for ELUI
+pls_rf_sr[as.numeric(perf_check[[1]]),]
+
+# Check performance of PLS and RF for KMRA
+pls_rf_sr[as.numeric(perf_check[[2]]),]
+sort(round(1-pls_rf_sr[as.numeric(perf_check[[2]]), "RMSE_pls"] / pls_rf_sr[as.numeric(perf_check[[2]]), "RMSE_rf"],2))
+sort(round(pls_rf_sr[as.numeric(perf_check[[2]]), "nvars_rf"] / pls_rf_sr[as.numeric(perf_check[[2]]), "nvars_pls"],2))
+
+# Check performance of PLS and RF for SPEC
+pls_rf_sr[as.numeric(perf_check[[3]]),]
+sort(round(1-pls_rf_sr[as.numeric(perf_check[[3]]), "RMSE_pls"] / pls_rf_sr[as.numeric(perf_check[[3]]), "RMSE_rf"],2))
+sort(round(pls_rf_sr[as.numeric(perf_check[[3]]), "nvars_rf"] / pls_rf_sr[as.numeric(perf_check[[3]]), "nvars_pls"],2))
+
+
+
+# models_sr_wide = spread(models_sr[models_sr$Resample == "Mean",], "ptype", "RMSE_normSD")
+# head(models_sr_wide)
 
 
 
