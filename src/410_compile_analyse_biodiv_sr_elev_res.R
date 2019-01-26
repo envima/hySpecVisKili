@@ -6,12 +6,13 @@ dir.create(path_compile_analysis_sr_elev_res, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
-ptypes = c("*elui*", "*kmra*", "*spec*", "*elsp*")
-mtypes = c("*gam*", "*pls*", "*rf*")
+pt = "*spec*"
+mtypes = c("*pls*", "*rf*")
+rtypes = c("*gam_elev_res*", "*pls_elui_res*", "*rf_elui_res*")
 
 all_models = lapply(mtypes, function(mt){
-  all_pmodels = lapply(ptypes, function(pt){
-    model_files = list.files(path_model_gpm_sr, full.names = TRUE,
+  all_pmodels = lapply(rtypes, function(rt){
+    model_files = list.files(path_model_gpm_sr_res, full.names = TRUE,
                              pattern = glob2rx(paste0(pt, mt)))
     
     all_models = readRDS(model_files[[1]])
@@ -22,10 +23,10 @@ all_models = lapply(mtypes, function(mt){
     
     return(all_models)
   })
-  names(all_pmodels) = gsub("[*]", "", ptypes)
+  names(all_pmodels) = gsub("[*]", "", rtypes)
   return(all_pmodels)
 })
 names(all_models) = gsub("[*]", "", gsub("_", "", mtypes))
 
-saveRDS(all_models, file = file.path(path_compile_analysis_sr, 
-                                     "models_sr.rds"))
+saveRDS(all_models, file = file.path(path_compile_analysis_sr_elev_res, 
+                                     "models_sr_elev_res.rds"))

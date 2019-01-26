@@ -65,7 +65,7 @@ compModels = function(model, pt, mt, outpath){
     model = trainModel(x = model,
                        metric = "RMSE",
                        n_var = NULL,
-                       mthd = "rf",
+                       mthd = mt,
                        mode = "ffs",
                        seed_nbr = 11,
                        cv_nbr = NULL,
