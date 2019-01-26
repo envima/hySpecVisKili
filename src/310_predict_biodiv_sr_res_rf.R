@@ -16,7 +16,8 @@ dir.create(paste0(path_model_gpm_sr_res), showWarnings = FALSE)
 
 # Predict gam, pls and rf elevation and elevation/lui based residuals using 
 # pls and rf models with hyperspectral data only
-res_suffixes = c("_gam_elev_res", "pls_elui_res", "rf_elui_res")
+res_suffixes = c("_gam_elev_res", "_pls_elui_res", "_rf_elui_res")
+res_suffixes = c("_pls_elui_res", "_rf_elui_res")
 mtypes = c("*pls*", "*rf*")
 pt = "*spec*"
 
