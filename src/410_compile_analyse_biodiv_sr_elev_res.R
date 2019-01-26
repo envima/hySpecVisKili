@@ -13,7 +13,7 @@ rtypes = c("*gam_elev_res*", "*pls_elui_res*", "*rf_elui_res*")
 all_models = lapply(mtypes, function(mt){
   all_pmodels = lapply(rtypes, function(rt){
     model_files = list.files(path_model_gpm_sr_res, full.names = TRUE,
-                             pattern = glob2rx(paste0(pt, mt)))
+                             pattern = glob2rx(paste0(mt, rt)))
     
     all_models = readRDS(model_files[[1]])
     

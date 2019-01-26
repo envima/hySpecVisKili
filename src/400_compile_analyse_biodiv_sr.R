@@ -6,10 +6,14 @@ dir.create(path_compile_analysis_sr, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
-ptypes = c("*elui*", "*kmra*", "*spec*", "*elsp*")
 mtypes = c("*gam*", "*pls*", "*rf*")
 
 all_models = lapply(mtypes, function(mt){
+  if(mt == "*gam*"){
+    ptypes = c("*elev*", "*elui*", "*kmra*", "*spec*", "*elsp*")
+  } else {
+    ptypes = c("*elui*", "*kmra*", "*spec*", "*elsp*")
+  }
   all_pmodels = lapply(ptypes, function(pt){
     model_files = list.files(path_model_gpm_sr, full.names = TRUE,
                              pattern = glob2rx(paste0(pt, mt)))

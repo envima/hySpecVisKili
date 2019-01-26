@@ -16,6 +16,24 @@ visCheck = function(datapath, polygonfile, band = 109){
 }
 
 
+
+# Compute predictions ----------------------------------------------------------
+compPredictions = function(model, input){
+  if(inherits(model, "try-error")){
+    predictions = NA
+  } else {
+    non_na_pos = which(
+      complete.cases(
+        input[, model$selectedvars]))
+    
+    predictions = NA
+    predictions[non_na_pos] = predict(model, input[non_na_pos,])
+  }
+  return(predictions)
+}
+
+
+
 # Compile residual datasets ----------------------------------------------------
 compResData = function(comb_sr, pt, mt){
   comb_sr_elev_res = comb_sr
@@ -35,9 +53,9 @@ compResData = function(comb_sr, pt, mt){
       act_predictions = NA
       act_predictions[non_na_pos] = predict(act_model$model, comb_sr@data$input[non_na_pos,])
     }  
-      comb_sr_elev_res@data$input[, act_model$response] = 
-        comb_sr_elev_res@data$input[, act_model$response] - 
-        act_predictions
+    comb_sr_elev_res@data$input[, act_model$response] = 
+      comb_sr_elev_res@data$input[, act_model$response] - 
+      act_predictions
     
     colname_pos = grep(act_model$response, colnames(comb_sr_elev_res@data$input))
     colnames(comb_sr_elev_res@data$input)[colname_pos] = 
@@ -71,7 +89,7 @@ compModels = function(model, pt, mt, outpath){
                        cv_nbr = NULL,
                        var_selection = "indv",
                        filepath_tmp = NULL)
-
+    
     outfile_name =   gsub("[*]", "", paste0(outpath, 
                                             "ki_sr_", pt, "_non_scaled_", mt, "_", 
                                             model@meta$input$RESPONSE_FINAL,
@@ -124,6 +142,37 @@ modelPerformance = function(model){
   return(smr_all)
 }
 
+
+
+# Compile two step prediction datasets -----------------------------------------
+comp2StepPred = function(comb_sr_two_step, model, model_res){
+
+  smr = lapply(seq(length(model)), function(i){
+    mi = model[[i]][[1]]
+    mi_res = model_res[[i]][[1]]
+    
+    mi_pred = compPredictions(mi$model, comb_sr_two_step@data$input)
+    mi_res_pred = compPredictions(mi_res$model, comb_sr_two_step@data$input)
+    
+    rmse_1step = sqrt(mean((comb_sr_two_step@data$input[, mi$response]-(mi_pred))**2, na.rm = TRUE))
+    rmse_2step = sqrt(mean((comb_sr_two_step@data$input[, mi$response]-(mi_pred + mi_res_pred))**2, na.rm = TRUE))
+    pmean = mean(comb_sr_two_step@data$input[, mi$response], na.rm = TRUE)
+    psd = sd(comb_sr_two_step@data$input[, mi$response], na.rm = TRUE)
+    rmse_1step_nd = rmse_1step/psd
+    rmse_2step_nd = rmse_2step/psd
+    
+    data.frame(mtype1 = mi$model$method,
+               mtype2 = mi_res$model$method,
+               resp =  mi$response,
+               RMSE1 = rmse_1step,
+               RMSE2 = rmse_2step,
+               RMSE_normSD1 = rmse_1step_nd,
+               RMSE_normSD2 = rmse_2step_nd)
+    
+  })
+  smr = do.call("rbind", smr)
+  return(smr)
+}
 
 
 # Spectral rao -----------------------------------------------------------------

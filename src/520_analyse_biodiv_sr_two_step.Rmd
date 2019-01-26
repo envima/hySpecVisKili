@@ -1,5 +1,5 @@
 ---
-title: "510 Analyse Biodiv-RS"
+title: "520 Analyse Biodiv-RS Two Step"
 output: html_notebook
 ---
 
@@ -8,8 +8,20 @@ source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_e
 
 dir.create(path_analysis_sr_elev_res, showWarnings = FALSE)
 
+comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
+all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))
 all_models_res = readRDS(file.path(path_compile_analysis_sr_elev_res, 
                                      "models_sr_elev_res.rds"))
+
+
+
+comb_sr_two_step = comb
+model = all_models$gam$elev@model$gam_none
+model_res = all_models_res$pls$gam_elev_res@model$rf_ffs
+
+comp2StepPred(comb_sr_two_step, model, model_res)
+
+
 
 
 # Collect model performance
