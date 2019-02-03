@@ -79,16 +79,18 @@ compModels = function(model, pt, mt, outpath){
     
     model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
     model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
-    model = createIndexFolds(x = model, nested_cv = FALSE)
-    model = trainModel(x = model,
-                       metric = "RMSE",
-                       n_var = NULL,
-                       mthd = mt,
-                       mode = "ffs",
-                       seed_nbr = 11,
-                       cv_nbr = NULL,
-                       var_selection = "indv",
-                       filepath_tmp = NULL)
+    if(nrow(model@data$input) > 0){
+      model = createIndexFolds(x = model, nested_cv = FALSE)
+      model = trainModel(x = model,
+                         metric = "RMSE",
+                         n_var = NULL,
+                         mthd = mt,
+                         mode = "ffs",
+                         seed_nbr = 11,
+                         cv_nbr = NULL,
+                         var_selection = "indv",
+                         filepath_tmp = NULL)
+    }
     
     outfile_name =   gsub("[*]", "", paste0(outpath, 
                                             "ki_sr_", pt, "_non_scaled_", mt, "_", 

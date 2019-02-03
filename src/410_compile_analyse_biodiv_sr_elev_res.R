@@ -18,7 +18,12 @@ all_models = lapply(mtypes, function(mt){
     all_models = readRDS(model_files[[1]])
     
     for(i in (seq(2, length(model_files)))){
-      all_models@model[[1]][[i]] = readRDS(model_files[[i]])@model[[1]][[1]]
+      act_model = readRDS(model_files[[i]])
+      if(length(act_model@model) > 0){
+      all_models@model[[1]][[i]] = act_model@model[[1]][[1]]
+      } else {
+        all_models@model[[1]][[i]] = NA
+      }
     }
     
     return(all_models)

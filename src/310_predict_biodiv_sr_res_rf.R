@@ -19,6 +19,7 @@ dir.create(paste0(path_model_gpm_sr_res), showWarnings = FALSE)
 res_suffixes = c("_gam_elev_res", "_pls_elui_res", "_rf_elui_res")
 res_suffixes = c("_pls_elui_res", "_rf_elui_res")
 mtypes = c("pls", "rf")
+mtypes = c("rf")
 pt = "*spec*"
 
 
