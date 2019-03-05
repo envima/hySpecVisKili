@@ -107,7 +107,9 @@ compModels = function(model, pt, mt, outpath){
 modelPerformance = function(model){
   smr_all = lapply(names(model), function(pt){
     smr_pt = lapply(model[[pt]]@model[[1]], function(mi){
-      if(inherits(mi[[1]]$model, "try-error")){
+      if(is.na(mi[[1]])){
+        df = NULL
+      } else if(inherits(mi[[1]]$model, "try-error")){
         df = NULL
       } else {
         if(ncol(mi[[1]]$model$resample) == 6){

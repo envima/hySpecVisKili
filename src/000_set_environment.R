@@ -42,6 +42,8 @@ library(doParallel)
 library(grid)
 library(gridExtra)
 library(gpm)  # devtools::install_github("environmentalinformatics-marburg/gpm")
+library(ggplot2)
+library(ggbiplot)
 library(hsdar)
 # library(lavaan)
 # library(rPointDB)
@@ -58,7 +60,7 @@ library(satelliteTools)  # devtools::install_github("environmentalinformatics-ma
 # library(semPlot)
 library(sp)
 library(spacetime)
-# library(vegan)
+library(vegan)
 # library(yaml)
 
 

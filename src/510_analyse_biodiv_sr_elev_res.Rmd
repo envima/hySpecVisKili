@@ -4,7 +4,7 @@ output: html_notebook
 ---
 
 ```{r, include = FALSE}
-source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 
 dir.create(path_analysis_sr_elev_res, showWarnings = FALSE)
 
@@ -13,78 +13,42 @@ all_models_res = readRDS(file.path(path_compile_analysis_sr_elev_res,
 
 
 # Collect model performance
-pls_res = modelPerformance(all_models_res[["pls"]])
-rf_res = modelPerformance(all_models_res[["rf"]])
+models_res = modelPerformance(all_models_res[["rf"]])
 
-pls_res$resmodel = pls_res$resp
-pls_res$resp = gsub("_gam_elev_res", "", pls_res$resp)
+models_res$resmodel = models_res$resp
+models_res$resp = gsub("_pls_elui_res", "", models_res$resp)
+models_res$resp = gsub("_rf_elui_res", "", models_res$resp)
 
-rf_res$resmodel = rf_res$resp
-rf_res$resp = gsub("_gam_elev_res", "", rf_res$resp)
+rf_pls_res = models_res[models_res$ptype == "pls_elui_res",]
+rf_rf_res = models_res[models_res$ptype == "rf_elui_res",]
 
-summary(pls_res)
-summary(rf_res)
+summary(rf_pls_res)
+summary(rf_rf_res)
 
 # Get trophic levels
 tl = read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
-pls_res = merge(pls_res, tl, by.x = "resp", by.y = "Species")
-rf_res = merge(rf_res, tl, by.x = "resp", by.y = "Species")
+rf_pls_res = merge(rf_pls_res, tl, by.x = "resp", by.y = "Species")
+rf_rf_res = merge(rf_rf_res, tl, by.x = "resp", by.y = "Species")
 ```
 
 # Compare PLS and RF
 ```{r, echo=FALSE}
-models_res = rbind(pls_res[, -4], rf_res[, -4])
 models_res$mptype = paste0(models_res$mtype, "_", models_res$ptype)
-models_res$mptype = factor(models_res$mptype, levels = c("rf_gam_elev_res"))
+models_res$mptype = factor(models_res$mptype)
 
 
-ggplot(data = models_res[models_res$ptype == "gam_elev_res" | models_res$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+ggplot(data = models_res, aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
   geom_boxplot() +
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 ```
 
-```{r, echo=FALSE}
-pls_rf_res = merge(pls_res, rf_res, by = c("ptype", "resp", "Resample"), all.y = TRUE)
-colnames(pls_rf_res)[grep("\\.x", colnames(pls_rf_res))] = 
-  gsub("\\.x", "_pls", colnames(pls_rf_res)[grep("\\.x", colnames(pls_rf_res))])
-colnames(pls_rf_res)[grep("\\.y", colnames(pls_rf_res))] = 
-  gsub("\\.y", "_rf", colnames(pls_rf_res)[grep("\\.y", colnames(pls_rf_res))])
-# nrow(pls_rf_res)
-
-ptypes = c("elui", "kmra", "spec", "elsp")
-perf_check = lapply(ptypes, function(pt){
-  subdf = pls_rf_res[!is.na(pls_rf_res$RMSE_pls) & 
-                      pls_rf_res$ptype == pt &
-                      pls_rf_res$Resample == "Mean", ]
-  rownames(subdf[subdf$RMSE_pls < subdf$RMSE_rf, ])
-})
-names(perf_check) = ptypes
-```
-
-# Check performance of PLS and RF
-```{r, echo = FALSE}
-for(i in seq(length(perf_check))){
-rmse_perf = sort(round(1-pls_rf_res[as.numeric(perf_check[[i]]), "RMSE_pls"] / 
-                         pls_rf_res[as.numeric(perf_check[[i]]), "RMSE_rf"],2))
-var_rf_prct = sort(round(pls_rf_res[as.numeric(perf_check[[i]]), "nvars_rf"] / 
-                           pls_rf_res[as.numeric(perf_check[[i]]), "nvars_pls"],2))
-level_pls = sort(table(pls_rf_res[as.numeric(perf_check[[i]]), "Level_pls"]))
-print(names(perf_check[i]))
-print(pls_rf_res[as.numeric(perf_check[[i]]),])
-cat("RMSE (1 - PLS/RF):", rmse_perf, "\n")
-cat("Var number (RF/PLS):", var_rf_prct, "\n")
-cat("Levels with PLS is better:", level_pls, "\n")
-cat("\n\n")
-}
-```
-
 # Collect variable importance
 ## Number of variables
 ```{r}
-pls_rf_res_long = melt(pls_rf_res[pls_rf_res$Resample == "Mean", c(1, 2, 6, 13)], id.vars = c("ptype", "resp"))
-ggplot(data = pls_rf_res_long, aes(x = variable, y = value, fill = ptype)) +
+rf_pls_res_long = melt(models_res[models_res$Resample == "Mean", c(2,3,5)], id.vars = c("ptype", "resp"))
+ggplot(data = rf_pls_res_long, aes(x = variable, y = value, fill = ptype)) +
   geom_boxplot() + 
   labs(list(x = "Models", y = "Number of variables" ,
             fill = "Predictor Set")) +
@@ -92,16 +56,9 @@ ggplot(data = pls_rf_res_long, aes(x = variable, y = value, fill = ptype)) +
 ```
 
 
-# Variable importance for PLS
-```{r, echo=FALSE}
-var_imp <- compVarImp(all_models_res[["pls"]][["spec"]]@model[[1]], scale = FALSE)
-# plotVarImp(var_imp)
-plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
-```
-
 # Variable importance for RF
-```{r, echo=FALSE}
-var_imp <- compVarImp(all_models_res[["rf"]][["spec"]]@model[[1]], scale = FALSE)
+```{r}
+var_imp <- compVarImp(all_models_res$rf$rf_elui_res@model[[1]], scale = FALSE)
 # plotVarImp(var_imp)
 plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
 ```
@@ -111,13 +68,26 @@ plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
 ```{r}
 var_imp_levels = var_imp
 for(i in seq(length(var_imp_levels))){
-  var_imp_levels[[i]]$RESPONSE = tl$Level[grep(var_imp_levels[[i]]$RESPONSE[1], tl$Species)]
+  act_species = gsub("_rf_elui_res", "", var_imp_levels[[i]]$RESPONSE[1])
+  var_imp_levels[[i]]$RESPONSE = tl$Level[grep(act_species, tl$Species)]
 }
 plotVarImpHeatmap(var_imp_levels, xlab = "Species", ylab = "Band")
 ```
 
-
-
+```{r}
+t = do.call("rbind", var_imp)
+t = t[t$mean>=0.6,]
+t$RESPONSE = gsub("_rf_elui_res", "", t$RESPONSE)
+tt = table(t$VARIABLE, t$RESPONSE)
+pca_tt <- prcomp(tt, scale = TRUE, center = TRUE)
+pca_var <- as.data.frame(pca_tt$rotation)
+pca_obs <- as.data.frame(pca_tt$x)
+ggplot(pca_var, aes(PC1, PC2))+
+  geom_point()+
+geom_point(data = pca_obs, aes(PC1, PC2), color = "red")
+ggbiplot(pca_tt, labels = rownames(pca_tt$x), choices = 1:2)
+biplot(pca_tt)
+```
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
 
