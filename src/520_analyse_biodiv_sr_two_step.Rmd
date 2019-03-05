@@ -19,8 +19,8 @@ comb_sr_two_step = comb
 model = all_models$gam$elev@model$gam_none
 model_res = all_models_res$pls$gam_elev_res@model$rf_ffs
 
-comp2StepPred(comb_sr_two_step, model, model_res)
-
+gam2rf = comp2StepPred(comb_sr_two_step, model, model_res)
+gam2rf[gam2rf$RMSE_normSD1 > gam2rf$RMSE_normSD2,]
 
 
 
@@ -41,20 +41,23 @@ summary(rf_res)
 tl = read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
 pls_res = merge(pls_res, tl, by.x = "resp", by.y = "Species")
 rf_res = merge(rf_res, tl, by.x = "resp", by.y = "Species")
+
+# Arrange levels and species names
+rf_res$Level = factor(rf_res$Level, levels(rf_res$Level)[c(1, 5, 4, 3, 6, 2)] )
+rf_res$resp = substr(rf_res$resp, 3, nchar(rf_res$resp))
+rf_res$resp = gsub("(^[[:alpha:]])", "\\U\\1", rf_res$resp, perl=TRUE)
+rf_res$resp = factor(rf_res$resp, unique(rf_res$resp[order(rf_res$Level, rf_res$resp)]))
 ```
 
 # Compare PLS and RF
 ```{r, echo=FALSE}
-models_res = rbind(pls_res[, -4], rf_res[, -4])
-models_res$mptype = paste0(models_res$mtype, "_", models_res$ptype)
-models_res$mptype = factor(models_res$mptype, levels = c("rf_gam_elev_res"))
-
-
-ggplot(data = models_res[models_res$ptype == "gam_elev_res" | models_res$ptype == "spec",], aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+ggplot(data = rf_res, aes(x = resp, y = RMSE_normSD, fill = Level)) + 
   geom_boxplot() +
+  geom_hline(yintercept=1, linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+  labs(list(x = "Species richness", y = "RMSEn", fill = "Trophic level"))
 ```
 
 ```{r, echo=FALSE}

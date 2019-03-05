@@ -1,6 +1,6 @@
 # Set path ---------------------------------------------------------------------
 if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/"
+  filepath_base = "C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/"
 } else {
   filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/"
 }
@@ -60,6 +60,7 @@ library(sp)
 library(spacetime)
 # library(vegan)
 # library(yaml)
+
 
 # Other settings ---------------------------------------------------------------
 source(filepath_source)
