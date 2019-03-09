@@ -79,13 +79,18 @@ compModels = function(model, pt, mt, outpath){
     
     model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
     model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
+    if(length(model@meta$input$PREDICTOR_FINAL) < 3){
+      mode = "none"
+    } else {
+      mode = "ffs"
+    }
     if(nrow(model@data$input) > 0){
       model = createIndexFolds(x = model, nested_cv = FALSE)
       model = trainModel(x = model,
                          metric = "RMSE",
                          n_var = NULL,
                          mthd = mt,
-                         mode = "ffs",
+                         mode = mode,
                          seed_nbr = 11,
                          cv_nbr = NULL,
                          var_selection = "indv",

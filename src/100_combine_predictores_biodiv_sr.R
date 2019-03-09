@@ -23,9 +23,15 @@ for(i in seq(length(species_composition_dcor))){
 }
 
 comb = merge(comb, preds, by = c("plotID"))
+comb = droplevels(comb)
 
 comb$SelCat = substr(as.character(comb$plotID), 1, 3)
-comb$SelNbr = substr(as.character(comb$plotID), 4, 4)
+
+selnbr = lapply(table(comb$SelCat), function(c){
+  seq(c)
+})
+comb$SelNbr = unlist(selnbr)
+
 
 col_selector = which(names(comb) %in% c("SelCat", "SelNbr"))
 
