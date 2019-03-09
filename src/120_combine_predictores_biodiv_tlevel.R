@@ -1,7 +1,7 @@
 # Combine hyperspectral predictores and biodiversity variables in gpm class
 # aggregated by trophic level.
 
-source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 
 
 preds = readRDS(paste0(path_hyp_pred, "hyperspec_preds.rds"))

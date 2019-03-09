@@ -33,8 +33,7 @@ col_diversity = seq(which("SRspiders" == colnames(comb)),
                           which("sn_dca4_Decomposer" == colnames(comb)))
 
 col_precitors = c(which("elevation" == colnames(comb)),
-                  seq(which("lui_biomass_removal" == colnames(comb)),
-                      which("lui" == colnames(comb))),
+                  which("lui" == colnames(comb)),
                   seq(which("CARI_mean" == colnames(comb)),
                       which("pcai_kmdc_raoq_sd" == colnames(comb))))
 
