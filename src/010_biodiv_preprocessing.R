@@ -107,14 +107,14 @@ saveRDS(species_richness, file = paste0(path_biodiv, "species_richness.rds"))
 
 
 # Compute community composition using detrended correspondence analysis
-species_composition_dcor.rds = lapply(adc_tlevels, function(l){
+species_composition_dcor = lapply(adc_tlevels, function(l){
   l = l[rowSums(l) > 0, ]
   decorana(l)
 })
-names(species_composition_dcor.rds) = names(adc_tlevels)
-# for(i in seq(5)) plot(species_composition_dcor.rds[[i]], display = "sites")
+names(species_composition_dcor) = names(adc_tlevels)
+# for(i in seq(5)) plot(species_composition_dcor[[i]], display = "sites")
 
-saveRDS(species_composition_dcor.rds,  file = paste0(path_biodiv, "species_composition_dcor.rds"))
+saveRDS(species_composition_dcor,  file = paste0(path_biodiv, "species_composition_dcor.rds"))
 
 
 

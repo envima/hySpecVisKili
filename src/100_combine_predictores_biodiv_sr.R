@@ -1,20 +1,36 @@
 # Combine hyperspectral predictores and biodiversity variables in gpm class.
 
-source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 
 
 preds = readRDS(paste0(path_hyp_pred, "hyperspec_preds.rds"))
-bd = readRDS(paste0(path_biodiv, "biodiv.rds"))
+# bd = readRDS(paste0(path_biodiv, "biodiv.rds"))
+species_richness = readRDS(paste0(path_biodiv, "species_richness.rds"))
+species_composition_dcor = readRDS(paste0(path_biodiv, "species_composition_dcor.rds"))
+species_network_pca = readRDS(paste0(path_biodiv, "species_network_pca.rds"))
 
-comb = merge(bd, preds, by = c("plotID"), all.x = TRUE, all.y = TRUE)
+comb = data.frame(species_network_pca$scores)
+colnames(comb) = paste0("sn_pca", seq(4))
+comb$plotID = rownames(species_network_pca$scores)
+
+comb = merge(species_richness, comb, by = c("plotID"), all.x = TRUE, all.y = TRUE)
+
+for(i in seq(length(species_composition_dcor))){
+  act = data.frame(species_composition_dcor[[i]]$rproj)
+  colnames(act) = paste0("sn_dca", seq(4), "_", names(species_composition_dcor[i]))
+  act$plotID = rownames(act)
+  comb = merge(comb, act, by = c("plotID"), all.x = TRUE, all.y = TRUE)
+}
+
+comb = merge(comb, preds, by = c("plotID"))
 
 comb$SelCat = substr(as.character(comb$plotID), 1, 3)
 comb$SelNbr = substr(as.character(comb$plotID), 4, 4)
 
 col_selector = which(names(comb) %in% c("SelCat", "SelNbr"))
 
-col_diversity = seq(which("SRmammals" == colnames(comb)),
-                          which("SRallplants" == colnames(comb)))
+col_diversity = seq(which("SRspiders" == colnames(comb)),
+                          which("sn_dca4_Decomposer" == colnames(comb)))
 
 col_precitors = c(which("elevation" == colnames(comb)),
                   seq(which("lui_biomass_removal" == colnames(comb)),
