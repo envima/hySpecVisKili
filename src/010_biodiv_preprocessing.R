@@ -138,6 +138,24 @@ species_network_pca <- princomp(adn_matrix[,-1], cor=T)
 saveRDS(species_network_pca,  file = paste0(path_biodiv, "species_network_pca.rds"))
 
 
+# comb_grigusovaine diversity for Grigusova et al. 2019
+comb_grigusova = data.frame(species_network_pca$scores)
+colnames(comb_grigusova) = paste0("sn_pca", seq(4))
+comb_grigusova$plotID = rownames(species_network_pca$scores)
+
+comb_grigusova = merge(adc_sr, comb_grigusova, by = c("plotID"), all.x = TRUE, all.y = TRUE)
+
+for(i in seq(length(species_composition_dcor))){
+  act = data.frame(species_composition_dcor[[i]]$rproj)
+  colnames(act) = paste0("sn_dca", seq(4), "_", names(species_composition_dcor[i]))
+  act$plotID = rownames(act)
+  comb_grigusova = merge(comb_grigusova, act, by = c("plotID"), all.x = TRUE, all.y = TRUE)
+}
+
+comb_grigusova = droplevels(comb_grigusova)
+
+saveRDS(comb_grigusova,  file = paste0(path_biodiv, "comb_grigusova.rds"))
+
 # Cross check
 # sort(colnames(adc_taxl_sr))
 # sort(colnames(bd[, c(1, grep("SR", colnames(bd)))]))
