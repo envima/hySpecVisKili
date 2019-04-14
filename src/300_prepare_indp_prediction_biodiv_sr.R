@@ -16,7 +16,7 @@ if(length(showConnections()) == 0){
 
 dir.create(path_comb_gpm_sr_indp, showWarnings = FALSE)
 
-all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))[["rf"]]
+all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))
 
 mt = "rf"
 
