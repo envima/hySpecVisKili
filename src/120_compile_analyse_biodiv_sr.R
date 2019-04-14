@@ -6,7 +6,7 @@ dir.create(path_compile_analysis_sr, showWarnings = FALSE)
 
 
 # Combine all models into one gpm object
-mtypes = c("*gam*", "*pls*", "*rf*")
+# mtypes = c("*gam*", "*pls*", "*rf*")
 mtypes = c("*rf*")
 
 all_models = lapply(mtypes, function(mt){

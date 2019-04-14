@@ -74,33 +74,41 @@ compResData = function(comb_sr, pt, mt){
 
 
 # Train and tune models --------------------------------------------------------
-compModels = function(model, pt, mt, outpath){
+compModels = function(model, pt, mt, rs = NULL, outpath, nested_cv = FALSE){
   foreach (i = seq(length(model@meta$input$RESPONSE)), .packages = c("gpm", "caret", "randomForest", "CAST")) %dopar% {
     
     model@meta$input$RESPONSE_FINAL = model@meta$input$RESPONSE[i]
     model@data$input = model@data$input[complete.cases(model@data$input[, c(model@meta$input$RESPONSE_FINAL, model@meta$input$PREDICTOR_FINAL)]), ]
-    if(length(model@meta$input$PREDICTOR_FINAL) < 3){
-      mode = "none"
+    if(length(model@meta$input$PREDICTOR_FINAL) < 3 | !is.null(rs)){
+      var_mode = "none"
     } else {
-      mode = "ffs"
+      var_mode = "ffs"
     }
     if(nrow(model@data$input) > 0){
-      model = createIndexFolds(x = model, nested_cv = FALSE)
+      model = createIndexFolds(x = model, nested_cv = nested_cv)
       model = trainModel(x = model,
                          metric = "RMSE",
                          n_var = NULL,
                          mthd = mt,
-                         mode = mode,
+                         mode = var_mode,
                          seed_nbr = 11,
                          cv_nbr = NULL,
                          var_selection = "indv",
                          filepath_tmp = NULL)
     }
     
-    outfile_name =   gsub("[*]", "", paste0(outpath, 
+    if(is.null(rs)){
+      outfile_name = gsub("[*]", "", paste0(outpath, 
                                             "ki_sr_", pt, "_non_scaled_", mt, "_", 
                                             model@meta$input$RESPONSE_FINAL,
                                             ".rds"))
+    } else {
+      outfile_name = gsub("[*]", "", paste0(outpath, 
+                                            "ki_sr_", pt, "_non_scaled_", mt, "_", 
+                                            model@meta$input$RESPONSE_FINAL,
+                                            "_iv.rds"))
+    }
+    
     print(outfile_name)
     saveRDS(model, file = outfile_name)
   }
@@ -155,7 +163,7 @@ modelPerformance = function(model){
 
 # Compile two step prediction datasets -----------------------------------------
 comp2StepPred = function(comb_sr_two_step, model, model_res){
-
+  
   smr = lapply(seq(length(model)), function(i){
     mi = model[[i]][[1]]
     mi_res = model_res[[i]][[1]]
