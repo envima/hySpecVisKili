@@ -27,7 +27,7 @@ for(pt in names(all_models[[mt]])){
   
   for(rs in seq(length(var_imp))){
     comb@meta$input$RESPONSE = as.character(var_imp[[rs]]$RESPONSE[1])
-    comb@meta$input$PREDICTOR_FINAL = var_imp[[rs]]$VARIABLE
+    comb@meta$input$PREDICTOR_FINAL = as.character(var_imp[[rs]]$VARIABLE)
 
     compModels(model = comb, pt = pt, mt = mt, rs = rs, outpath = path_comb_gpm_sr_indp, nested_cv = TRUE)
   }
