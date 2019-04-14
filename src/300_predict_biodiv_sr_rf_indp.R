@@ -14,7 +14,7 @@ if(length(showConnections()) == 0){
   doParallel::registerDoParallel(cl)
 }
 
-dir.create(path_comb_gpm_sr_indp, showWarnings = FALSE)
+dir.create(path_model_gpm_sr_indp, showWarnings = FALSE)
 
 all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))
 
@@ -29,7 +29,7 @@ for(pt in names(all_models[[mt]])){
     comb@meta$input$RESPONSE = as.character(var_imp[[rs]]$RESPONSE[1])
     comb@meta$input$PREDICTOR_FINAL = as.character(var_imp[[rs]]$VARIABLE)
 
-    compModels(model = comb, pt = pt, mt = mt, rs = rs, outpath = path_comb_gpm_sr_indp, nested_cv = TRUE)
+    compModels(model = comb, pt = pt, mt = mt, rs = rs, outpath = path_model_gpm_sr_indp, nested_cv = TRUE)
   }
 }
 

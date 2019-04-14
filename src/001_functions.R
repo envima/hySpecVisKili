@@ -35,9 +35,9 @@ compPredictions = function(model, input){
 
 
 # Compile residual datasets ----------------------------------------------------
-compResData = function(comb_sr, pt, mt){
+compResData = function(comb_sr, pt, mt, model_path = path_model_gpm_sr, suf = "_res"){
   comb_sr_elev_res = comb_sr
-  model_files = list.files(path_model_gpm_sr, full.names = TRUE,
+  model_files = list.files(model_path, full.names = TRUE,
                            pattern = glob2rx(paste0(pt, mt)))
   
   for(m in model_files){
@@ -60,12 +60,12 @@ compResData = function(comb_sr, pt, mt){
     colname_pos = grep(act_model$response, colnames(comb_sr_elev_res@data$input))
     colnames(comb_sr_elev_res@data$input)[colname_pos] = 
       paste0(colnames(comb_sr_elev_res@data$input)[colname_pos], 
-             gsub("[*]", "", paste0("_", mt, "_", pt, "_res")))
+             gsub("[*]", "", paste0("_", mt, "_", pt, suf)))
   }
   
   comb_sr_elev_res@meta$input$RESPONSE = 
     paste0(comb_sr_elev_res@meta$input$RESPONSE,
-           gsub("[*]", "", paste0("_", mt, "_", pt, "_res")))
+           gsub("[*]", "", paste0("_", mt, "_", pt, suf)))
   
   comb_sr_elev_res@meta$input$RESPONSE_FINAL = comb_sr_elev_res@meta$input$RESPONSE
   return(comb_sr_elev_res)
