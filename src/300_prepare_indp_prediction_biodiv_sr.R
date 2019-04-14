@@ -22,7 +22,7 @@ mt = "rf"
 
 # Predict variables again using best predictors and independent validation.
 for(pt in names(all_models[[mt]])){
-  comb = all_models[[pt]]
+  comb = all_models[[mt]][[pt]]
   var_imp <- compVarImp(comb@model[[1]], scale = FALSE)
   
   for(rs in seq(length(var_imp))){
