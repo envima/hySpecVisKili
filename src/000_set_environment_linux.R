@@ -29,6 +29,7 @@ path_model_gpm_sr_elev_res_indp = paste0(path_data, "/320_model_gpm_sr_elev_res_
 path_analysis_sr = paste0(path_data, "/500_analysis_sr/")
 path_analysis_sr_elev_res = paste0(path_data, "/510_analysis_sr_elev_res/")
 
+
 path_plots = paste0(path_data, "/plots/")
 path_rdata = paste0(path_data, "/rdata/")
 path_meta = paste0(path_data, "/meta/")
