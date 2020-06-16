@@ -17,6 +17,7 @@ path_hyp_kmdc = paste0(path_data, "/050_hypspec_kmdc/")
 path_hyp_raoq = paste0(path_data, "/060_hypspec_raoq/")
 path_hyp_glcm = paste0(path_data, "/070_hypspec_glcm/")
 path_hyp_pred = paste0(path_data, "/090_hypspec_pred/")
+path_ldr_pred = paste0(path_data, "/095_lidar_pred/")
 path_comb_gpm_sr = paste0(path_data, "/100_comb_gpm_sr/")
 path_model_gpm_sr = paste0(path_data, "/110_model_gpm_sr/")
 path_compile_analysis_sr = paste0(path_data, "/120_compile_analysis_sr/")
@@ -28,7 +29,6 @@ path_comb_gpm_sr_elev_res_indp = paste0(path_data, "/310_comb_gpm_sr_elev_res_in
 path_model_gpm_sr_elev_res_indp = paste0(path_data, "/320_model_gpm_sr_elev_res_indp/")
 path_analysis_sr = paste0(path_data, "/500_analysis_sr/")
 path_analysis_sr_elev_res = paste0(path_data, "/510_analysis_sr_elev_res/")
-
 
 path_plots = paste0(path_data, "/plots/")
 path_rdata = paste0(path_data, "/rdata/")

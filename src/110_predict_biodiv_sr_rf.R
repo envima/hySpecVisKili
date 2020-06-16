@@ -2,7 +2,7 @@
 if(Sys.info()["sysname"] == "Windows"){
   filepath_base = "D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R"
 } else {
-  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
+  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/hySpecVisKili/src/000_set_environment_linux.R"
 }
 source(filepath_base)
 
