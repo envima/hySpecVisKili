@@ -1,9 +1,14 @@
 # Combine hyperspectral predictores and biodiversity variables in gpm class.
 
-source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+source("D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R")
 
 
-preds = readRDS(paste0(path_hyp_pred, "hyperspec_preds.rds"))
+preds_hyspec = readRDS(paste0(path_hyp_pred, "hyperspec_preds.rds"))
+preds_lidar = readRDS(file.path(path_ldr_pred, "lidar_preds.rds"))
+preds_lidar = preds_lidar[, c(which(colnames(preds_lidar) == "plotID"), 
+                              seq(which(colnames(preds_lidar) == "AGB"),
+                                  ncol(preds_lidar)))]
+
 # bd = readRDS(paste0(path_biodiv, "biodiv.rds"))
 species_richness = readRDS(paste0(path_biodiv, "species_richness.rds"))
 species_composition_dcor = readRDS(paste0(path_biodiv, "species_composition_dcor.rds"))
@@ -22,7 +27,9 @@ for(i in seq(length(species_composition_dcor))){
   comb = merge(comb, act, by = c("plotID"), all.x = TRUE, all.y = TRUE)
 }
 
-comb = merge(comb, preds, by = c("plotID"))
+comb = merge(comb, preds_hyspec, by = c("plotID"))
+comb = merge(comb, preds_lidar, by = c("plotID"))
+
 comb = droplevels(comb)
 
 comb$SelCat = substr(as.character(comb$plotID), 1, 3)
@@ -41,7 +48,7 @@ col_diversity = seq(which("SRspiders" == colnames(comb)),
 col_precitors = c(which("elevation" == colnames(comb)),
                   which("lui" == colnames(comb)),
                   seq(which("CARI_mean" == colnames(comb)),
-                      which("pcai_kmdc_raoq_sd" == colnames(comb))))
+                      which("scl_elevsq" == colnames(comb))))
 
 col_meta = which(!seq(ncol(comb)) %in% c(col_selector, col_diversity, col_precitors))
   

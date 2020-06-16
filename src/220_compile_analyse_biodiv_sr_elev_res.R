@@ -1,5 +1,5 @@
 # Combine species richness residual model results in one variable.
-source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+source("D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R")
 
 
 dir.create(path_compile_analysis_sr_elev_res, showWarnings = FALSE)

@@ -1,6 +1,6 @@
 # comb_elev_resine hyperspectral predictores and biodiversity variables in gpm class.
 if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R"
+  filepath_base = "D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R"
 } else {
   filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/HySpec_KiLi/src/000_set_environment_linux.R"
 }

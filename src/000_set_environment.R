@@ -1,11 +1,11 @@
 # Set path ---------------------------------------------------------------------
 if(Sys.info()["sysname"] == "Windows"){
-  filepath_base = "C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/"
+  filepath_base = "D:/plygrnd/hySpecVisKili/"
 } else {
   filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/"
 }
 
-filepath_source = paste0(filepath_base, "HySpec_KiLi/src/001_functions.R")
+filepath_source = paste0(filepath_base, "hySpecVisKili/src/functions/001_functions.R")
 path_data = paste0(filepath_base, "/data/")
 path_biodiv = paste0(path_data, "/biodiv/")
 
@@ -17,6 +17,7 @@ path_hyp_kmdc = paste0(path_data, "/050_hypspec_kmdc/")
 path_hyp_raoq = paste0(path_data, "/060_hypspec_raoq/")
 path_hyp_glcm = paste0(path_data, "/070_hypspec_glcm/")
 path_hyp_pred = paste0(path_data, "/090_hypspec_pred/")
+path_ldr_pred = paste0(path_data, "/095_lidar_pred/")
 path_comb_gpm_sr = paste0(path_data, "/100_comb_gpm_sr/")
 path_model_gpm_sr = paste0(path_data, "/110_model_gpm_sr/")
 path_compile_analysis_sr = paste0(path_data, "/120_compile_analysis_sr/")
@@ -46,7 +47,7 @@ library(grid)
 library(gridExtra)
 library(gpm)  # devtools::install_github("environmentalinformatics-marburg/gpm")
 library(ggplot2)
-library(ggbiplot)
+# library(ggbiplot)
 library(hsdar)
 # library(lavaan)
 # library(rPointDB)
