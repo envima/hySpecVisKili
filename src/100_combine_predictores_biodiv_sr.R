@@ -7,7 +7,7 @@ preds_hyspec = readRDS(paste0(path_hyp_pred, "hyperspec_preds.rds"))
 preds_lidar = readRDS(file.path(path_ldr_pred, "lidar_preds.rds"))
 preds_lidar = preds_lidar[, c(which(colnames(preds_lidar) == "plotID"), 
                               seq(which(colnames(preds_lidar) == "AGB"),
-                                  ncol(preds_lidar)))]
+                                  which(colnames(preds_lidar) == "qntl_rng")))]
 
 # bd = readRDS(paste0(path_biodiv, "biodiv.rds"))
 species_richness = readRDS(paste0(path_biodiv, "species_richness.rds"))
@@ -63,4 +63,4 @@ comb <- gpm(comb, meta, scale = FALSE)
 
 dir.create(paste0(path_comb_gpm_sr), showWarnings = FALSE)
 
-saveRDS(comb, file = paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
+saveRDS(comb, file = paste0(path_comb_gpm_sr, "ki_hyperspec_lidar_biodiv_non_scaled.rds"))

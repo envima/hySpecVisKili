@@ -15,7 +15,7 @@ if(length(showConnections()) == 0){
 
 dir.create(paste0(path_model_gpm_sr), showWarnings = FALSE)
 
-comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_biodiv_non_scaled.rds"))
+comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_lidar_biodiv_non_scaled.rds"))
 
 
 # Predict with all elevation and lui information, hyperspectral data only, 
