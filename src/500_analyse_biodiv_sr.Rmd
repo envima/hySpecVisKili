@@ -4,12 +4,12 @@ output: html_notebook
 ---
 
 ```{r, include = FALSE}
-source("C:/Users/tnauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+# Set up working environment and defaults --------------------------------------
+root_folder = path.expand("~/plygrnd/hySpecVisKili/")
+source(file.path(root_folder, "hySpecVisKili/src/000_setup_windows.R"))
 
-dir.create(path_analysis_sr, showWarnings = FALSE)
-
-all_models = readRDS(file.path(path_compile_analysis_sr, "models_sr.rds"))
-
+all_models = readRDS(file.path(envrmt$path_120_compile_analysis_sr, 
+                               "models_sr.rds"))
 
 # Collect model performance
 gam_sr = modelPerformance(all_models[["gam"]])

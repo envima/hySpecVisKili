@@ -4,11 +4,10 @@ output: html_notebook
 ---
 
 ```{r, include = FALSE}
-source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
+root_folder = path.expand("~/plygrnd/hySpecVisKili/")
+source(file.path(root_folder, "hySpecVisKili/src/000_setup_windows.R"))
 
-dir.create(path_analysis_sr_elev_res, showWarnings = FALSE)
-
-all_models_res = readRDS(file.path(path_compile_analysis_sr_elev_res, 
+all_models_res = readRDS(file.path(envrmt$path_220_compile_analysis_sr_elev_res, 
                                      "models_sr_elev_res.rds"))
 
 

@@ -1,7 +1,8 @@
 # Combine species richness model results in one variable.
-source("C:/Users/Thomas Nauss/permanent/plygrnd/KI-Hyperspec/HySpec_KiLi/src/000_set_environment.R")
 
 
+root_folder = path.expand("~/plygrnd/hySpecVisKili/")
+source(file.path(root_folder, "hySpecVisKili/src/000_setup_windows.R"))
 dir.create(path_compile_analysis_sr, showWarnings = FALSE)
 
 
