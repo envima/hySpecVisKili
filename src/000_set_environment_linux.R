@@ -39,7 +39,7 @@ path_vis = paste0(path_data, "/vis/")
 
 
 # Set libraries ----------------------------------------------------------------
-library(biodivTools) # devtools::install_github("environmentalinformatics-marburg/biodivTools")
+#library(biodivTools) # devtools::install_github("environmentalinformatics-marburg/biodivTools")
 library(CAST)
 # library(corrplot)
 library(doParallel)

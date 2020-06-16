@@ -48,7 +48,7 @@ col_diversity = seq(which("SRspiders" == colnames(comb)),
 col_precitors = c(which("elevation" == colnames(comb)),
                   which("lui" == colnames(comb)),
                   seq(which("CARI_mean" == colnames(comb)),
-                      which("scl_elevsq" == colnames(comb))))
+                      which("qntl_rng" == colnames(comb))))
 
 col_meta = which(!seq(ncol(comb)) %in% c(col_selector, col_diversity, col_precitors))
   

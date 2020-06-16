@@ -39,7 +39,7 @@ spec_cols = seq(which(comb@meta$input$PREDICTOR == "CARI_mean"),
                 which(comb@meta$input$PREDICTOR == "pcai_kmdc_raoq_sd"))
 
 ldr_cols = seq(which(comb@meta$input$PREDICTOR == "AGB"), 
-                which(comb@meta$input$PREDICTOR == "scl_elevsq"))
+                which(comb@meta$input$PREDICTOR == "qntl_rng"))
 
 for(mt in mtypes){
   for(pt in ptypes){
