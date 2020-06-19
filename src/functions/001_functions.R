@@ -119,6 +119,7 @@ compModels = function(model, pt, mt, rs = NULL, outpath, nested_cv = FALSE){
 # Collect model performance ----------------------------------------------------
 modelPerformance = function(model){
   smr_all = lapply(names(model), function(pt){
+    print(pt)
     smr_pt = lapply(model[[pt]]@model[[1]], function(mi){
       if(is.na(mi[[1]])){
         df = NULL
@@ -134,10 +135,16 @@ modelPerformance = function(model){
                 mi[[1]]$model$resample$method == mi[[1]]$model$bestTune$method & 
                   mi[[1]]$model$resample$select == mi[[1]]$model$bestTune$select, 1:3], na.rm = TRUE)),
               Resample = "Mean"))
-        } else {
+        } else if(ncol(mi[[1]]$model$resample) == 4) {
           temp = rbind(mi[[1]]$model$resample,
                        data.frame(t(colMeans(mi[[1]]$model$resample[, 1:3], na.rm = TRUE)),
                                   Resample = "Mean"))
+          temp$mtry = NA
+          
+        } else {
+          temp = rbind(mi[[1]]$model$resample,
+                       data.frame(t(colMeans(mi[[1]]$model$resample[, 1:3], na.rm = TRUE)),
+                                  mtry = NA, Resample = "Mean"))
           
         }
         temp$RMSE_normSD =  temp$RMSE/sd(mi[[1]]$model$trainingData$.outcome)

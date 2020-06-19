@@ -1,14 +1,20 @@
 ---
 title: "500 Analyse Biodiv-RS"
 output: html_notebook
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
 # Set up working environment and defaults --------------------------------------
-root_folder = path.expand("~/plygrnd/hySpecVisKili/")
-source(file.path(root_folder, "hySpecVisKili/src/000_setup_windows.R"))
+if(Sys.info()["sysname"] == "Windows"){
+  filepath_base = "D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R"
+} else {
+  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/hySpecVisKili/src/000_set_environment_linux.R"
+}
+source(filepath_base)
 
-all_models = readRDS(file.path(envrmt$path_120_compile_analysis_sr, 
+all_models = readRDS(file.path(path_compile_analysis_sr, 
                                "models_sr.rds"))
 
 # Collect model performance
@@ -39,6 +45,17 @@ rf_sr$resp = as.character(rf_sr$resp)
 rf_sr$resp = substr(rf_sr$resp, 3, nchar(rf_sr$resp))
 rf_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", rf_sr$resp, perl=TRUE)
 rf_sr$resp = factor(rf_sr$resp, unique(rf_sr$resp[order(rf_sr$Level, rf_sr$resp)]))
+
+
+rf_sr$mptype = paste0(rf_sr$mtype, "_", rf_sr$ptype)
+ggplot(data = rf_sr[rf_sr$mtype == "rf",], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 ```
 
 # Compare PLS and RF

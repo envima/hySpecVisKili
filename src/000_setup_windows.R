@@ -33,7 +33,7 @@ project_folders = c("data/",
                     "data/temp/")
 
 libs = c("biodivTools", "CAST", "corrplot", "doParallel", "grid", "gridExtra", 
-         "gpm", "ggplot2", "ggbiplot", "hsdar", "rgeos", "ggplot2", "mapview", 
+         "gpm", "ggplot2", "hsdar", "rgeos", "ggplot2", "mapview", 
          "raster", "RStoolbox", "reshape2", "rgdal", "satelliteTools", "sp", 
          "spacetime", "vegan")
 

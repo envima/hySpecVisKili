@@ -29,7 +29,7 @@ ptypes = c("*elui*",
            "*kmra*")
 
 mt = mtypes[1]
-pt = ptypes[1]
+pt = ptypes[2]
 
 
 elui_cols = seq(which(comb@meta$input$PREDICTOR == "elevation"), 
