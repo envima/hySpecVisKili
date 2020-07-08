@@ -135,6 +135,17 @@ modelPerformance = function(model){
                 mi[[1]]$model$resample$method == mi[[1]]$model$bestTune$method & 
                   mi[[1]]$model$resample$select == mi[[1]]$model$bestTune$select, 1:3], na.rm = TRUE)),
               Resample = "Mean"))
+          temp$mtry = NA
+        } else if(mi[[1]]$model$method == "pls") {
+          temp = mi[[1]]$model$resample
+            
+          if("ncomp" %in% colnames(temp)){
+            temp[which(colnames(temp) == "ncomp")] = NULL
+          }
+          temp = rbind(temp,
+                       data.frame(t(colMeans(mi[[1]]$model$resample[, 1:3], na.rm = TRUE)),
+                                  Resample = "Mean"))
+
         } else if(ncol(mi[[1]]$model$resample) == 4) {
           temp = rbind(mi[[1]]$model$resample,
                        data.frame(t(colMeans(mi[[1]]$model$resample[, 1:3], na.rm = TRUE)),
@@ -162,6 +173,7 @@ modelPerformance = function(model){
     smr_pt = do.call("rbind", smr_pt)
     return(smr_pt)
   })
+  
   smr_all = do.call("rbind", smr_all)
   return(smr_all)
 }

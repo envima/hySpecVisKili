@@ -22,15 +22,17 @@ comb = readRDS(paste0(path_comb_gpm_sr, "ki_hyperspec_lidar_biodiv_non_scaled.rd
 # all data, and  kmdc and raoq only using gam, pls and rf models.
 mtypes = c("gam", "pls", "rf")
 mtypes = c("rf")
-ptypes = c("*elui*", 
+ptypes = c("*elev*", "*elui*", 
            "*spec*", "*elsp*", 
            "*lidr*", "*eldr*", 
            "*splr*", "*esld*", 
            "*kmra*")
 
 mt = mtypes[1]
-pt = ptypes[2]
+pt = ptypes[1]
 
+
+elev_cols = seq(which(comb@meta$input$PREDICTOR == "elevation"))
 
 elui_cols = seq(which(comb@meta$input$PREDICTOR == "elevation"), 
                 which(comb@meta$input$PREDICTOR == "lui"))
@@ -44,7 +46,10 @@ ldr_cols = seq(which(comb@meta$input$PREDICTOR == "AGB"),
 for(mt in mtypes){
   for(pt in ptypes){
     
-    if(pt == "*elui*"){ 
+    if(pt == "*elev*"){ 
+      comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[elev_cols]
+      
+    } else  if(pt == "*elui*"){ 
       comb@meta$input$PREDICTOR_FINAL = comb@meta$input$PREDICTOR[elui_cols]
       
     } else if(pt == "*spec*"){ 

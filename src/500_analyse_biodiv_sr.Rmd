@@ -33,6 +33,12 @@ pls_sr = merge(pls_sr, tl, by.x = "resp", by.y = "Species")
 rf_sr = merge(rf_sr, tl, by.x = "resp", by.y = "Species")
 
 # Arrange levels and species names
+gam_sr$Level = factor(gam_sr$Level, levels(gam_sr$Level)[c(1, 5, 4, 3, 6, 2)] )
+gam_sr$resp = as.character(gam_sr$resp)
+gam_sr$resp = substr(gam_sr$resp, 3, nchar(gam_sr$resp))
+gam_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", gam_sr$resp, perl=TRUE)
+gam_sr$resp = factor(gam_sr$resp, unique(gam_sr$resp[order(gam_sr$Level, gam_sr$resp)]))
+
 pls_sr$Level = factor(pls_sr$Level, levels(pls_sr$Level)[c(1, 5, 4, 3, 6, 2)] )
 pls_sr$resp = as.character(pls_sr$resp)
 pls_sr$resp = substr(pls_sr$resp, 3, nchar(pls_sr$resp))
@@ -47,7 +53,24 @@ rf_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", rf_sr$resp, perl=TRUE)
 rf_sr$resp = factor(rf_sr$resp, unique(rf_sr$resp[order(rf_sr$Level, rf_sr$resp)]))
 
 
+gam_sr$mptype = paste0(gam_sr$mtype, "_", gam_sr$ptype)
+
 rf_sr$mptype = paste0(rf_sr$mtype, "_", rf_sr$ptype)
+
+
+
+ggplot(data = rf_sr[rf_sr$mtype == "rf" & 
+                      (rf_sr$mptype == "rf_spec" | 
+                         rf_sr$mptype == "rf_lidr" |
+                         rf_sr$mptype == "rf_elui"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
 ggplot(data = rf_sr[rf_sr$mtype == "rf",], 
        aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
   geom_boxplot() +
@@ -56,6 +79,33 @@ ggplot(data = rf_sr[rf_sr$mtype == "rf",],
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+gam_sr$mptype = paste0(gam_sr$mtype, "_", gam_sr$ptype)
+ggplot(data = gam_sr[gam_sr$mtype == "gam",], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+
+pls_sr$mptype = paste0(pls_sr$mtype, "_", pls_sr$ptype)
+ggplot(data = pls_sr[pls_sr$mtype == "pls" & 
+                      (pls_sr$mptype == "pls_spec" | 
+                         pls_sr$mptype == "pls_lidr" |
+                         pls_sr$mptype == "pls_elui"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
 ```
 
 # Compare PLS and RF

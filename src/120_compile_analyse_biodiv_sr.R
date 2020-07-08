@@ -8,16 +8,18 @@ dir.create(envrmt$path_120_compile_analysis_sr, showWarnings = FALSE)
 
 # Combine all models into one gpm object
 # mtypes = c("gam", "pls", "rf")
-mtypes = c("rf")
+mtypes = c("gam", "pls", "rf")
 
 
 
 all_models = lapply(mtypes, function(mt){
+  ptypes = c("*elui*", 
+             "*spec*", "*elsp*", 
+             "*lidr*", "*eldr*", 
+             "*splr*", "*esld*", 
+             "*kmra*")
   if(mt == "gam"){
-    ptypes = c("*elev*", "*elui*", "*kmra*", "*spec*", "*elsp*")
-  } else {
-    ptypes = c("*elui*", "*spec*", "*elsp*", "*lidr*", "*eldr*", 
-               "*splr*", "*esld*", "*kmra*")
+    ptypes = c("*elev*", ptypes)
   }
   all_pmodels = lapply(ptypes, function(pt){
     model_files = list.files(envrmt$path_110_model_gpm_sr, full.names = TRUE,
