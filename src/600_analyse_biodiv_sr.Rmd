@@ -1,0 +1,186 @@
+---
+title: "600 Analyse Biodiv-RS"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+# Set up working environment and defaults --------------------------------------
+if (Sys.info()["sysname"] == "Windows") {
+  filepath_base <- "D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R"
+} else {
+  filepath_base <- "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/hySpecVisKili/src/000_set_environment_linux.R"
+}
+source(filepath_base)
+
+all_models <- readRDS(file.path(
+  path_compile_analysis_sr,
+  "models_sr.rds"
+))
+
+# Collect model performance
+gam_sr <- modelPerformance(all_models[["gam"]])
+pls_sr <- modelPerformance(all_models[["pls"]])
+rf_sr <- modelPerformance(all_models[["rf"]])
+
+summary(gam_sr)
+summary(pls_sr)
+summary(rf_sr)
+
+# Get trophic levels
+tl <- read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
+gam_sr <- merge(gam_sr, tl, by.x = "resp", by.y = "Species")
+pls_sr <- merge(pls_sr, tl, by.x = "resp", by.y = "Species")
+rf_sr <- merge(rf_sr, tl, by.x = "resp", by.y = "Species")
+
+# Arrange levels and species names
+gam_sr$Level <- factor(gam_sr$Level, levels(gam_sr$Level)[c(1, 5, 4, 3, 6, 2)])
+gam_sr$resp <- as.character(gam_sr$resp)
+gam_sr$resp <- substr(gam_sr$resp, 3, nchar(gam_sr$resp))
+gam_sr$resp <- gsub("(^[[:alpha:]])", "\\U\\1", gam_sr$resp, perl = TRUE)
+gam_sr$resp <- factor(gam_sr$resp, unique(gam_sr$resp[order(gam_sr$Level, gam_sr$resp)]))
+
+pls_sr$Level <- factor(pls_sr$Level, levels(pls_sr$Level)[c(1, 5, 4, 3, 6, 2)])
+pls_sr$resp <- as.character(pls_sr$resp)
+pls_sr$resp <- substr(pls_sr$resp, 3, nchar(pls_sr$resp))
+pls_sr$resp <- gsub("(^[[:alpha:]])", "\\U\\1", pls_sr$resp, perl = TRUE)
+pls_sr$resp <- factor(pls_sr$resp, unique(pls_sr$resp[order(pls_sr$Level, pls_sr$resp)]))
+
+
+rf_sr$Level <- factor(rf_sr$Level, levels(rf_sr$Level)[c(1, 5, 4, 3, 6, 2)])
+rf_sr$resp <- as.character(rf_sr$resp)
+rf_sr$resp <- substr(rf_sr$resp, 3, nchar(rf_sr$resp))
+rf_sr$resp <- gsub("(^[[:alpha:]])", "\\U\\1", rf_sr$resp, perl = TRUE)
+rf_sr$resp <- factor(rf_sr$resp, unique(rf_sr$resp[order(rf_sr$Level, rf_sr$resp)]))
+
+gam_sr$mptype <- paste0(gam_sr$mtype, "_", gam_sr$ptype)
+pls_sr$mptype <- paste0(pls_sr$mtype, "_", pls_sr$ptype)
+rf_sr$mptype <- paste0(rf_sr$mtype, "_", rf_sr$ptype)
+
+# Create merged model
+model_sr_m <- rbind(
+  gam_sr[, c("resp", "mtype", "ptype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")],
+  pls_sr[, c("resp", "mtype", "ptype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")],
+  rf_sr[, c("resp", "mtype", "ptype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")]
+)
+
+
+# Some preliminary results
+best_model <- function(data) {
+  best_model <- lapply(unique(data$resp), function(r) {
+    tmp <- data[data$resp == r & data$Resample == "Mean", ]
+    tmp[which(min(tmp$RMSE) == tmp$RMSE), ]
+  })
+  best_model <- do.call("rbind", best_model)
+
+  for (r in unique(best_model$resp[duplicated(best_model$resp) | duplicated(best_model$resp, fromLast = TRUE)])) {
+    tmp <- best_model[best_model$resp == r, ]
+    if (any("e" != substr(tmp$ptype, 1, 1))) {
+      use <- which("e" != substr(tmp$ptype, 1, 1))
+    } else {
+      use <- 1
+    }
+    rmv <- seq(nrow(tmp))
+    rmv <- rmv[use != rmv]
+    best_model[best_model$resp == r, "Resample"][rmv] <- "remove"
+  }
+  return(list(best_model = best_model, best_model_table = table(best_model$mptype[best_model$Resample != "remove"])))
+}
+
+
+gam_models = c("gam_elev", "gam_elui")
+pls_models = sort(unique(model_sr_m$mptype[model_sr_m$mtype == "pls"]))
+pls_models_single = pls_models[c(3, 5, 6, 7)]
+rf_models = sort(unique(model_sr_m$mptype[model_sr_m$mtype == "rf"]))
+rf_models_single = rf_models[c(3, 5, 6, 7)]
+
+
+best_model_gam <- best_model(model_sr_m[model_sr_m$mptype %in% gam_models, ])
+print(best_model_gam$best_model_table)
+
+best_model_pls_incl_gam <- best_model(model_sr_m[model_sr_m$mptype %in% pls_models | model_sr_m$mptype %in% gam_models, ])
+best_model_pls_incl_gam$best_model_table
+
+best_model_pls_single <- best_model(model_sr_m[model_sr_m$mptype %in% pls_models_single, ])
+best_model_pls_single$best_model_table
+
+best_model_pls_single_incl_gam <- best_model(model_sr_m[model_sr_m$mptype %in% pls_models_single| model_sr_m$mptype %in% gam_models, ])
+best_model_pls_single_incl_gam$best_model_table
+
+best_model_rf_incl_gam <- best_model(model_sr_m[model_sr_m$mptype %in% rf_models | model_sr_m$mptype %in% gam_models, ])
+best_model_rf_incl_gam$best_model_table
+
+best_model_rf_single <- best_model(model_sr_m[model_sr_m$mptype %in% rf_models_single, ])
+best_model_rf_single$best_model_table
+
+best_model_rf_single_incl_gam <- best_model(model_sr_m[model_sr_m$mptype %in% rf_models_single| model_sr_m$mptype %in% gam_models, ])
+best_model_rf_single_incl_gam$best_model_table
+
+
+
+```
+
+
+Lable colors in the first tow boxplots have the following meaning: blue = LiDAR is better than hyperspectral observations, green = hyperspectral is better, black = prediction using elevation is better.
+```{r}
+best_model_gam$best_model_table
+
+best_model_pls_incl_gam$best_model_table
+
+best_model_pls_single$best_model_table
+
+best_model_pls_single_incl_gam$best_model_table
+
+best_model_rf_incl_gam$best_model_table
+
+best_model_rf_single$best_model_table
+
+best_model_rf_single_incl_gam$best_model_table
+
+
+lbl_color <- best_model_pls_single_incl_gam$best_model[, c("resp", "ptype")]
+lbl_color$color = "black"
+lbl_color$color[lbl_color$ptype == "lidr"] = "blue"
+lbl_color$color[lbl_color$ptype == "spec"] = "darkgreen"
+
+ggplot(
+  data = model_sr_m[model_sr_m$mptype %in% pls_models_single| model_sr_m$mptype %in% gam_models, ],
+  aes(x = resp, y = RMSE_normSD, fill = mptype)
+) +
+  geom_boxplot() +
+  geom_hline(yintercept = c(0.5, 1), linetype = "dashed", color = "black") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, colour  = lbl_color$color)) +
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+lbl_color <- best_model_rf_single_incl_gam$best_model[, c("resp", "ptype")]
+lbl_color$color = "black"
+lbl_color$color[lbl_color$ptype == "lidr"] = "blue"
+lbl_color$color[lbl_color$ptype == "spec"] = "darkgreen"
+
+ggplot(
+  data = model_sr_m[model_sr_m$mptype %in% rf_models_single| model_sr_m$mptype %in% gam_models, ],
+  aes(x = resp, y = RMSE_normSD, fill = mptype)
+) +
+  geom_boxplot() +
+  geom_hline(yintercept = c(0.5, 1), linetype = "dashed", color = "black") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, colour  = lbl_color$color)) +
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+ggplot(data = rbind(model_sr_m[(model_sr_m$mptype == "gam_elui" | model_sr_m$mptype == "gam_elev" | model_sr_m$mptype == "pls_spec" | model_sr_m$mptype == "pls_lidr" | model_sr_m$mptype == "pls_elui" | model_sr_m$mptype == "rf_spec" | model_sr_m$mptype == "rf_lidr" | model_sr_m$mptype == "rf_elui") & model_sr_m$Resample != "Mean", ]), aes(x = resp, y = RMSE_normSD, fill = mptype)) +
+  geom_boxplot() +
+  geom_hline(yintercept = c(0.5, 1), linetype = "dashed", color = "black") +
+  scale_fill_brewer(palette = "Dark2") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+```

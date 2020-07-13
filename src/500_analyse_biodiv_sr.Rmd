@@ -52,11 +52,57 @@ rf_sr$resp = substr(rf_sr$resp, 3, nchar(rf_sr$resp))
 rf_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", rf_sr$resp, perl=TRUE)
 rf_sr$resp = factor(rf_sr$resp, unique(rf_sr$resp[order(rf_sr$Level, rf_sr$resp)]))
 
-
 gam_sr$mptype = paste0(gam_sr$mtype, "_", gam_sr$ptype)
-
+pls_sr$mptype = paste0(pls_sr$mtype, "_", pls_sr$ptype)
 rf_sr$mptype = paste0(rf_sr$mtype, "_", rf_sr$ptype)
 
+model_sr_m = rbind(gam_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")], 
+                   pls_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")], 
+                   rf_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")])
+
+model_sr_m = model_sr_m[model_sr_m$Resample != "Mean", ]
+
+ggplot(data = rbind(model_sr_m[model_sr_m$mptype == "gam_elui" | model_sr_m$mptype == "gam_elev" | model_sr_m$mptype == "pls_spec" | model_sr_m$mptype == "pls_lidr" | model_sr_m$mptype == "pls_elui" | model_sr_m$mptype == "rf_spec" | model_sr_m$mptype == "rf_lidr" | model_sr_m$mptype == "rf_elui", ]), aes(x = resp, y = RMSE_normSD, fill = mptype)) +
+  geom_boxplot() + 
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+
+best_model = lapply(unique(model_sr_m$))
+
+
+
+
+label_colors = "black"
+
+
+pls_sr$RMSE_normSD[pls_sr$]
+
+label_colors <- ifelse(pls_sr$RMSE_normSD == 0, "red", "blue")
+
+pls_sr_tmp = pls_sr[pls_sr$mtype == "pls" & 
+                      (pls_sr$mptype == "pls_spec" | 
+                         pls_sr$mptype == "pls_lidr" |
+                         pls_sr$mptype == "pls_elui"),]
+
+label_colors = rep("black", length(unique(pls_sr_tmp$resp)))
+if()
+
+ggplot(data = pls_sr[pls_sr$mtype == "pls" & 
+                      (pls_sr$mptype == "pls_spec" | 
+                         pls_sr$mptype == "pls_lidr" |
+                         pls_sr$mptype == "pls_elui"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 
 
 ggplot(data = rf_sr[rf_sr$mtype == "rf" & 
@@ -71,40 +117,9 @@ ggplot(data = rf_sr[rf_sr$mtype == "rf" &
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
   labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 
-ggplot(data = rf_sr[rf_sr$mtype == "rf",], 
-       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
-  geom_boxplot() +
-  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
-  scale_fill_brewer(palette="Dark2") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
-
-
-gam_sr$mptype = paste0(gam_sr$mtype, "_", gam_sr$ptype)
-ggplot(data = gam_sr[gam_sr$mtype == "gam",], 
-       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
-  geom_boxplot() +
-  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
-  scale_fill_brewer(palette="Dark2") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 
 
 
-pls_sr$mptype = paste0(pls_sr$mtype, "_", pls_sr$ptype)
-ggplot(data = pls_sr[pls_sr$mtype == "pls" & 
-                      (pls_sr$mptype == "pls_spec" | 
-                         pls_sr$mptype == "pls_lidr" |
-                         pls_sr$mptype == "pls_elui"),], 
-       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
-  geom_boxplot() +
-  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
-  scale_fill_brewer(palette="Dark2") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
 
 ```
 
