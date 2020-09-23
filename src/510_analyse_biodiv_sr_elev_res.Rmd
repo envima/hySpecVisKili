@@ -1,0 +1,93 @@
+---
+title: "510 Analyse Biodiv-RS"
+output: html_notebook
+---
+
+```{r, include = FALSE}
+root_folder = path.expand("~/plygrnd/hySpecVisKili/")
+source(file.path(root_folder, "hySpecVisKili/src/000_setup_windows.R"))
+
+all_models_res = readRDS(file.path(envrmt$path_220_compile_analysis_sr_elev_res, 
+                                     "models_sr_elev_res.rds"))
+
+
+# Collect model performance
+models_res = modelPerformance(all_models_res[["rf"]])
+
+models_res$resmodel = models_res$resp
+models_res$resp = gsub("_pls_elui_res", "", models_res$resp)
+models_res$resp = gsub("_rf_elui_res", "", models_res$resp)
+
+rf_pls_res = models_res[models_res$ptype == "pls_elui_res",]
+rf_rf_res = models_res[models_res$ptype == "rf_elui_res",]
+
+summary(rf_pls_res)
+summary(rf_rf_res)
+
+# Get trophic levels
+tl = read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
+rf_pls_res = merge(rf_pls_res, tl, by.x = "resp", by.y = "Species")
+rf_rf_res = merge(rf_rf_res, tl, by.x = "resp", by.y = "Species")
+```
+
+# Compare PLS and RF
+```{r, echo=FALSE}
+models_res$mptype = paste0(models_res$mtype, "_", models_res$ptype)
+models_res$mptype = factor(models_res$mptype)
+
+
+ggplot(data = models_res, aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+```
+
+# Collect variable importance
+## Number of variables
+```{r}
+rf_pls_res_long = melt(models_res[models_res$Resample == "Mean", c(2,3,5)], id.vars = c("ptype", "resp"))
+ggplot(data = rf_pls_res_long, aes(x = variable, y = value, fill = ptype)) +
+  geom_boxplot() + 
+  labs(list(x = "Models", y = "Number of variables" ,
+            fill = "Predictor Set")) +
+  theme_bw()
+```
+
+
+# Variable importance for RF
+```{r}
+var_imp <- compVarImp(all_models_res$rf$rf_elui_res@model[[1]], scale = FALSE)
+# plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+```
+
+
+# Trophic levels
+```{r}
+var_imp_levels = var_imp
+for(i in seq(length(var_imp_levels))){
+  act_species = gsub("_rf_elui_res", "", var_imp_levels[[i]]$RESPONSE[1])
+  var_imp_levels[[i]]$RESPONSE = tl$Level[grep(act_species, tl$Species)]
+}
+plotVarImpHeatmap(var_imp_levels, xlab = "Species", ylab = "Band")
+```
+
+```{r}
+t = do.call("rbind", var_imp)
+t = t[t$mean>=0.6,]
+t$RESPONSE = gsub("_rf_elui_res", "", t$RESPONSE)
+tt = table(t$VARIABLE, t$RESPONSE)
+pca_tt <- prcomp(tt, scale = TRUE, center = TRUE)
+pca_var <- as.data.frame(pca_tt$rotation)
+pca_obs <- as.data.frame(pca_tt$x)
+ggplot(pca_var, aes(PC1, PC2))+
+  geom_point()+
+geom_point(data = pca_obs, aes(PC1, PC2), color = "red")
+ggbiplot(pca_tt, labels = rownames(pca_tt$x), choices = 1:2)
+biplot(pca_tt)
+```
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

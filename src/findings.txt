@@ -1,0 +1,20 @@
+ELUI
+RF always performs better than PLS for elui.
+
+KMRA
+PLS better for: SRasterids, SRferns, SRmammals, SRmonocots
+RMSE percentage difference: 0.01 0.05 0.07 0.10
+Variables used by RF/PLS: 0.21 0.33 0.43 0.57
+RF performs worse than PLS for kmra for 4 groups. Differences in RMSE range between 1% and 10%. RF requires only between 21% and 57% of the variables.
+
+SPEC
+PLS better for: SRallplants, SRants, SRbats, SRbees, SRbirds, SRcollembola, SReudicots, SRmagnoliids, SRmammals, SRothercoleoptera, SRrosids, SRsnails 
+RMSE percentage difference: 0.01 0.03 0.04 0.04 0.05 0.06 0.07 0.07 0.08 0.10 0.27 0.34
+Variables used by RF/PLS: 0.10 0.16 0.24 0.24 0.32 0.32 0.33 0.35 0.38 0.45 0.47 0.50
+RF performs worse than PLS for spec for 12 groups. Differences in RMSE range between 1% and 34%. RF requires only between 10% and 50% of the variables.
+
+ELSP
+PLS better for: SRallplants, SRasterids, SRothercoleoptera, SRsyrphids
+RMSE percentage difference: 0.03 0.08 0.08 0.28
+Variables used by RF/PLS: 0.16 0.21 0.29 0.43
+RF performs worse than PLS for elsp for 4 groups. Differences in RMSE range between 3% and 28%. RF requires only between 16% and 43% of the variables.

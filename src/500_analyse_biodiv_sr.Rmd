@@ -1,0 +1,244 @@
+---
+title: "500 Analyse Biodiv-RS"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+# Set up working environment and defaults --------------------------------------
+if(Sys.info()["sysname"] == "Windows"){
+  filepath_base = "D:/plygrnd/hySpecVisKili/hySpecVisKili/src/000_set_environment.R"
+} else {
+  filepath_base = "/mnt/sd19006/data/users/tnauss/KI-Hyperspec/hySpecVisKili/src/000_set_environment_linux.R"
+}
+source(filepath_base)
+
+all_models = readRDS(file.path(path_compile_analysis_sr, 
+                               "models_sr.rds"))
+
+# Collect model performance
+gam_sr = modelPerformance(all_models[["gam"]])
+pls_sr = modelPerformance(all_models[["pls"]])
+rf_sr = modelPerformance(all_models[["rf"]])
+
+summary(gam_sr)
+summary(pls_sr)
+summary(rf_sr)
+
+# Get trophic levels
+tl = read.table(file.path(path_meta, "trophic_levels.csv"), header = TRUE, sep = ";")
+gam_sr = merge(gam_sr, tl, by.x = "resp", by.y = "Species")
+pls_sr = merge(pls_sr, tl, by.x = "resp", by.y = "Species")
+rf_sr = merge(rf_sr, tl, by.x = "resp", by.y = "Species")
+
+# Arrange levels and species names
+gam_sr$Level = factor(gam_sr$Level, levels(gam_sr$Level)[c(1, 5, 4, 3, 6, 2)] )
+gam_sr$resp = as.character(gam_sr$resp)
+gam_sr$resp = substr(gam_sr$resp, 3, nchar(gam_sr$resp))
+gam_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", gam_sr$resp, perl=TRUE)
+gam_sr$resp = factor(gam_sr$resp, unique(gam_sr$resp[order(gam_sr$Level, gam_sr$resp)]))
+
+pls_sr$Level = factor(pls_sr$Level, levels(pls_sr$Level)[c(1, 5, 4, 3, 6, 2)] )
+pls_sr$resp = as.character(pls_sr$resp)
+pls_sr$resp = substr(pls_sr$resp, 3, nchar(pls_sr$resp))
+pls_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", pls_sr$resp, perl=TRUE)
+pls_sr$resp = factor(pls_sr$resp, unique(pls_sr$resp[order(pls_sr$Level, pls_sr$resp)]))
+
+
+rf_sr$Level = factor(rf_sr$Level, levels(rf_sr$Level)[c(1, 5, 4, 3, 6, 2)] )
+rf_sr$resp = as.character(rf_sr$resp)
+rf_sr$resp = substr(rf_sr$resp, 3, nchar(rf_sr$resp))
+rf_sr$resp = gsub("(^[[:alpha:]])", "\\U\\1", rf_sr$resp, perl=TRUE)
+rf_sr$resp = factor(rf_sr$resp, unique(rf_sr$resp[order(rf_sr$Level, rf_sr$resp)]))
+
+gam_sr$mptype = paste0(gam_sr$mtype, "_", gam_sr$ptype)
+pls_sr$mptype = paste0(pls_sr$mtype, "_", pls_sr$ptype)
+rf_sr$mptype = paste0(rf_sr$mtype, "_", rf_sr$ptype)
+
+model_sr_m = rbind(gam_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")], 
+                   pls_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")], 
+                   rf_sr[, c("resp", "mtype", "mptype", "Resample", "RMSE", "Rsquared", "RMSE_normSD")])
+
+model_sr_m = model_sr_m[model_sr_m$Resample != "Mean", ]
+
+ggplot(data = rbind(model_sr_m[model_sr_m$mptype == "gam_elui" | model_sr_m$mptype == "gam_elev" | model_sr_m$mptype == "pls_spec" | model_sr_m$mptype == "pls_lidr" | model_sr_m$mptype == "pls_elui" | model_sr_m$mptype == "rf_spec" | model_sr_m$mptype == "rf_lidr" | model_sr_m$mptype == "rf_elui", ]), aes(x = resp, y = RMSE_normSD, fill = mptype)) +
+  geom_boxplot() + 
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+
+best_model = lapply(unique(model_sr_m$))
+
+
+
+
+label_colors = "black"
+
+
+pls_sr$RMSE_normSD[pls_sr$]
+
+label_colors <- ifelse(pls_sr$RMSE_normSD == 0, "red", "blue")
+
+pls_sr_tmp = pls_sr[pls_sr$mtype == "pls" & 
+                      (pls_sr$mptype == "pls_spec" | 
+                         pls_sr$mptype == "pls_lidr" |
+                         pls_sr$mptype == "pls_elui"),]
+
+label_colors = rep("black", length(unique(pls_sr_tmp$resp)))
+if()
+
+ggplot(data = pls_sr[pls_sr$mtype == "pls" & 
+                      (pls_sr$mptype == "pls_spec" | 
+                         pls_sr$mptype == "pls_lidr" |
+                         pls_sr$mptype == "pls_elui"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+ggplot(data = rf_sr[rf_sr$mtype == "rf" & 
+                      (rf_sr$mptype == "rf_spec" | 
+                         rf_sr$mptype == "rf_lidr" |
+                         rf_sr$mptype == "rf_elui"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+
+
+
+```
+
+# Compare PLS and RF
+```{r, echo=FALSE}
+models_sr = rbind(pls_sr[, -4], rf_sr[, -4])
+models_sr$mptype = paste0(models_sr$mtype, "_", models_sr$ptype)
+models_sr$mptype = factor(models_sr$mptype, levels = c("pls_elsp", "rf_elsp",
+                                                       "pls_elui", "rf_elui",
+                                                       "pls_kmra", "rf_kmra",
+                                                       "pls_spec", "rf_spec"))
+
+ggplot(data = models_sr[models_sr$mtype == "pls" & 
+                          (models_sr$ptype == "elui" | models_sr$ptype == "spec"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+
+ggplot(data = models_sr[models_sr$mtype == "rf" & 
+                          (models_sr$ptype == "elui" | models_sr$ptype == "spec"),], 
+       aes(x = resp, y = RMSE_normSD, fill = mptype)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species groups", y = "RMSEn", fill = "Model set"))
+
+
+ggplot(data = models_sr[models_sr$mtype == "rf" & models_sr$ptype == "spec",], 
+       aes(x = resp, y = RMSE_normSD, fill = Level)) + 
+  geom_boxplot() +
+  geom_hline(yintercept=c(0.5,1), linetype="dashed", color = "black") + 
+  scale_fill_brewer(palette="Dark2") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  labs(list(x = "Species richness", y = "RMSEn", fill = "Trophic level"))
+```
+
+```{r, echo=FALSE}
+pls_rf_sr = merge(pls_sr, rf_sr, by = c("ptype", "resp", "Resample"), all.y = TRUE)
+colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))] = 
+  gsub("\\.x", "_pls", colnames(pls_rf_sr)[grep("\\.x", colnames(pls_rf_sr))])
+colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))] = 
+  gsub("\\.y", "_rf", colnames(pls_rf_sr)[grep("\\.y", colnames(pls_rf_sr))])
+# nrow(pls_rf_sr)
+
+ptypes = c("elui", "kmra", "spec", "elsp")
+perf_check = lapply(ptypes, function(pt){
+  subdf = pls_rf_sr[!is.na(pls_rf_sr$RMSE_pls) & 
+                      pls_rf_sr$ptype == pt &
+                      pls_rf_sr$Resample == "Mean", ]
+  rownames(subdf[subdf$RMSE_pls < subdf$RMSE_rf, ])
+})
+names(perf_check) = ptypes
+```
+
+# Check performance of PLS and RF
+```{r, echo = FALSE}
+for(i in seq(length(perf_check))){
+  rmse_perf = sort(round(1-pls_rf_sr[as.numeric(perf_check[[i]]), "RMSE_pls"] / 
+                           pls_rf_sr[as.numeric(perf_check[[i]]), "RMSE_rf"],2))
+  var_rf_prct = sort(round(pls_rf_sr[as.numeric(perf_check[[i]]), "nvars_rf"] / 
+                             pls_rf_sr[as.numeric(perf_check[[i]]), "nvars_pls"],2))
+  level_pls = sort(table(pls_rf_sr[as.numeric(perf_check[[i]]), "Level_pls"]))
+  print(names(perf_check[i]))
+  print(pls_rf_sr[as.numeric(perf_check[[i]]),])
+  cat("RMSE (1 - PLS/RF):", rmse_perf, "\n")
+  cat("Var number (RF/PLS):", var_rf_prct, "\n")
+  cat("Levels with PLS is better:", level_pls, "\n")
+  cat("\n\n")
+}
+```
+
+# Collect variable importance
+## Number of variables
+```{r}
+pls_rf_sr_long = melt(pls_rf_sr[pls_rf_sr$Resample == "Mean", c(1, 2, 6, 13)], id.vars = c("ptype", "resp"))
+ggplot(data = pls_rf_sr_long, aes(x = variable, y = value, fill = ptype)) +
+  geom_boxplot() + 
+  labs(list(x = "Models", y = "Number of variables" ,
+            fill = "Predictor Set")) +
+  theme_bw()
+```
+
+
+# Variable importance for PLS
+```{r, echo=FALSE}
+var_imp <- compVarImp(all_models[["pls"]][["spec"]]@model[[1]], scale = FALSE)
+# plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+```
+
+# Variable importance for RF
+```{r, echo=FALSE}
+var_imp <- compVarImp(all_models[["rf"]][["spec"]]@model[[1]], scale = FALSE)
+# plotVarImp(var_imp)
+plotVarImpHeatmap(var_imp, xlab = "Species", ylab = "Band")
+```
+
+
+# Trophic levels
+```{r}
+var_imp_levels = var_imp
+for(i in seq(length(var_imp_levels))){
+  var_imp_levels[[i]]$RESPONSE = tl$Level[grep(var_imp_levels[[i]]$RESPONSE[1], tl$Species)]
+}
+plotVarImpHeatmap(var_imp_levels, xlab = "Species", ylab = "Band")
+```
+
+
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
